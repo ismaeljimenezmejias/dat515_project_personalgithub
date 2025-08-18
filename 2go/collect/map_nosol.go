@@ -1,0 +1,3 @@
+package collect
+
+const solutionTag = ""
