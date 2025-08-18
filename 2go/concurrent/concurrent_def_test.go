@@ -9,9 +9,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-// TODO(meling): Make these tests use table-driven tests; use want instead of expected.
-// TODO(meling): Increase the number of inputs for the tests.
-
 func testProcessConcurrently(t *testing.T, scoreDec func()) {
 	input := []int{1, 2, 3, 4, 5}
 	expected := []int{2, 4, 6, 8, 10}
