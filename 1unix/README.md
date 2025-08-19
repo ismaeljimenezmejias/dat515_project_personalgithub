@@ -13,6 +13,7 @@
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
 - [Get Access to OpenStack VM](#get-access-to-openstack-vm)
+  - [Task: Add Your SSH Public Key to Your GitHub Repository](#task-add-your-ssh-public-key-to-your-github-repository)
   - [Task: Get OpenStack VM](#task-get-openstack-vm)
 - [The Unix System at UiS](#the-unix-system-at-uis)
   - [Task: Sign up for Unix Account](#task-sign-up-for-unix-account)
@@ -43,18 +44,50 @@ Some lab assignments will require you to use an OpenStack VM.
 You may also use the OpenStack VM for other assignments, e.g., if your local machine is not powerful enough.
 However, we do recommend that you prefer your local machine, since it will provide more flexibility.
 
+### Task: Add Your SSH Public Key to Your GitHub Repository
+
+To enable secure access to your course resources, you are required to add your SSH public key to your personal GitHub assignments repository.
+Generate an SSH key pair (if you haven’t already) on your local machine:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+This will create a public key file: `~/.ssh/id_ed25519.pub`.
+You can inspect the contents of the public key file using the following command:
+
+```sh
+$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEqjMwVp9QGB8+V1/BFt1XvhFXOIDepLyW+ZpxKbohzk meling@Heins-Mac-Studio.local
+```
+
+Next, copy your public key file into the `1unix` directory, naming it as `github-username.pub`.
+Then commit and push the public key to your GitHub repository.
+
+```bash
+cd 1unix
+# Replace github-username with your actual GitHub username
+cp ~/.ssh/id_ed25519.pub github-username.pub
+git add github-username.pub
+git commit -m "added SSH public key for OpenStack VM access"
+git push
+```
+
+Important:
+Do NOT upload your private key (the file without .pub).
+Only upload your public key.
+
 ### Task: Get OpenStack VM
 
-TODO(meling): The following steps are work in progress, and we may not succeed in time.
-
-Once you have signed up to QuickFeed, we will provision an OpenStack VM for you.
+Once you have signed up to QuickFeed, and completed the task above, we will provision an OpenStack VM for you.
 We will use your GitHub username as your username for the VM.
-We will provide your VMs password in the QuickFeed frontend.
 Once we have provisioned the VM, you can connect to this VM to work on your assignments, as follows:
 
 ```bash
-ssh github-username@152.94.171.171
+ssh github-username@152.94.171.171 -i ~/.ssh/id_ed25519
 ```
+
+You do not need a passphrase; the command above is using the SSH private key corresponding to the public key you uploaded in the previous task to access your VM.
 
 ## The Unix System at UiS
 
