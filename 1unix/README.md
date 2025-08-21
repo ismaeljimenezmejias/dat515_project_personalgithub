@@ -23,7 +23,7 @@
 - [Remote Login with Secure SHell: Unix](#remote-login-with-secure-shell-unix)
 - [Configuring SSH for Passwordless Login](#configuring-ssh-for-passwordless-login)
   - [Task: Setting Up SSH Keys for Passwordless GitHub Authentication](#task-setting-up-ssh-keys-for-passwordless-github-authentication)
-- [Submitting to QuickFeed](#submitting-to-quickfeed)
+- [Cloning Your Assignments Repository and Submitting to QuickFeed](#cloning-your-assignments-repository-and-submitting-to-quickfeed)
 
 ## Introduction
 
@@ -293,34 +293,8 @@ Follow the instructions for [Connecting to GitHub with SSH](https://docs.github.
 Note that these guides provide instructions for Mac, Windows and Linux.
 You can select your OS via a tab near the top of each article.
 
-#### Cloning Your Assignments Repository
+## Cloning Your Assignments Repository and Submitting to QuickFeed
 
-Next you will clone the `assignments` repository to your local machine or OpenStack VM.
-We recommend that you follow the steps below exactly.
-
-In the following description, we refer to your GitHub user name as `username`.
-_You must replace `username` with your actual GitHub user name._
-Perform the following steps to clone the repository:
-
-```console
-# change directory to $HOME
-cd
-```
-
-In your browser, find the green `Code` menu on your `username-labs` repository on GitHub, select `Use SSH` and copy the URL in the `Clone with SSH` tab.
-Below we use `git@github.com:dat515-2025/username-labs.git` as an example.
-
-```console
-# clone the Git repo with SSH into the $HOME/assignments directory
-git clone git@github.com:dat515-2025/username-labs.git assignments
-cd assignments
-git remote add course-assignments git@github.com:dat515-2025/assignments.git
-git pull course-assignments main
-```
-
-After completing these steps, you should be able to clone repositories and push commits to GitHub without entering your password each time.
+Carefully follow the instructions in the [lab submission guide](https://github.com/dat515-2025/info/blob/main/lab-submission.md).
+The instructions should enable you to clone repositories and push changes to GitHub, fetch changes to the assignments, and submit your final solution.
 This setup will work on your local machine, OpenStack VM, or any other environment where you've configured your SSH keys.
-
-## Submitting to QuickFeed
-
-Read our [lab submission guide](https://github.com/dat515-2025/info/blob/main/lab-submission.md) for more detailed instructions on how to submit your assignments to be evaluated by QuickFeed.
