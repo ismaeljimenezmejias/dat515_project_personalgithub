@@ -98,10 +98,10 @@ No other changes to the text should be made.
    *.py
    ```
 
-   - [x] a) `go/.DS_Store`, `go/main.go` and `notes/work-notes.md`
+   - [ ] a) `go/.DS_Store`, `go/main.go` and `notes/work-notes.md`
    - [ ] b) `go/main.go`, `notes/work-notes.md` and `python/main.py`
    - [ ] c) `go/main.go` and `notes/work-notes.md`
-   - [ ] d) `go/.DS_Store` and `go/main.go`
+   - [x] d) `go/.DS_Store` and `go/main.go`
 
 8. Which command lets you see the changes made to `file.txt` relative to the staging area (i.e. unstaged changes to `file.txt`)?
 
