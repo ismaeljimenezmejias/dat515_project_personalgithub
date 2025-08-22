@@ -111,8 +111,8 @@ No other changes to the text should be made.
     How can you repeat command `ls -al`?
     - [ ] a) `repeat 1052`
     - [ ] b) `redo 1052`
-    - [ ] c) `!1052`
-    - [x] d) `1052`
+    - [x] c) `!1052`
+    - [ ] d) `1052`
 
 15. What does the `less` command do?
 
