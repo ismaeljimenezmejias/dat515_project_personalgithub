@@ -10,9 +10,9 @@ No other changes to the text should be made.
    (Only Linux; macOS incompatible.)
 
     - [ ] a) `du -h -l .`
-    - [x] b) `du -h -–max-depth=1 .`
+    - [ ] b) `du -h -–max-depth=1 .`
     - [ ] c) `du --max-depth=1`
-    - [ ] d) `du -h -a --max-depth=1 .`
+    - [x] d) `du -h -a --max-depth=1 .`
 
 2. Which command continuously updates the displayed contents of a file named `file.txt` in real time, while its contents are being modified by some other process?
 
