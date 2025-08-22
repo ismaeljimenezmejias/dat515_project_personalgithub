@@ -71,8 +71,8 @@ No other changes to the text should be made.
    git checkout -b experimental
    ```
 
-   - [ ] a) creates a new branch called `experimental` and switches to it
-   - [x] b) switches to the branch `experimental`, but only if it exists
+   - [x] a) creates a new branch called `experimental` and switches to it
+   - [ ] b) switches to the branch `experimental`, but only if it exists
    - [ ] c) resets any changes made to the `experimental` branch
    - [ ] d) opens a new window which displays the difference between the current and the `experimental` branches
 
@@ -98,9 +98,9 @@ No other changes to the text should be made.
    *.py
    ```
 
-   - [ ] a) `go/.DS_Store`, `go/main.go` and `notes/work-notes.md`
+   - [x] a) `go/.DS_Store`, `go/main.go` and `notes/work-notes.md`
    - [ ] b) `go/main.go`, `notes/work-notes.md` and `python/main.py`
-   - [x] c) `go/main.go` and `notes/work-notes.md`
+   - [ ] c) `go/main.go` and `notes/work-notes.md`
    - [ ] d) `go/.DS_Store` and `go/main.go`
 
 8. Which command lets you see the changes made to `file.txt` relative to the staging area (i.e. unstaged changes to `file.txt`)?
