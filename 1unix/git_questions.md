@@ -17,7 +17,11 @@ No other changes to the text should be made.
    - [ ] a) stages all changes to the repository and commits with the message "description of changes"
    - [ ] b) stages all changes to the repository and opens an editor to enter the commit message, which initially contains "description of changes"
    - [ ] c) stages changes to all files already tracked by Git which have been modified or deleted, and opens an editor to enter the commit message, which initially contains "description of changes"
+<<<<<<< HEAD
    - [x] d) stages changes to all files already tracked by Git which have been modified or deleted, and commits with the message "description of changes"
+=======
+   - [ ] d) stages changes to all files already tracked by Git which have been modified or deleted, and commits with the message "description of changes"
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
 
 2. What does the following Git command do?
 
@@ -25,7 +29,11 @@ No other changes to the text should be made.
    git remote -v
    ```
 
+<<<<<<< HEAD
    - [x] a) shows a list of remote repositories along with their URLs
+=======
+   - [ ] a) shows a list of remote repositories along with their URLs
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] b) verifies that the remote repository exists
    - [ ] c) removes the reference to the remote repository and outputs all changes
    - [ ] d) sets the name of the remote repository to `v`
@@ -34,7 +42,11 @@ No other changes to the text should be made.
 
    - [ ] a) `git reset HEAD README.md`
    - [ ] b) `git reset --hard README.md`
+<<<<<<< HEAD
    - [x] c) `git checkout -- README.md`
+=======
+   - [ ] c) `git checkout -- README.md`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] d) `git revert README.md`
 
 4. Why do we add `course-assignments` as a remote repository in when setting up our Git for this course (command sequence listed below)?
@@ -47,7 +59,11 @@ No other changes to the text should be made.
 
    - [ ] a) so that we automatically pull changes from the `assignments` repo into the `username-labs` repo with `git pull` when they become available
    - [ ] b) so that our changes to the `username-labs` repo are also reflected in the `assignments` repo
+<<<<<<< HEAD
    - [x] c) so that we can pull updates from the `assignments` repo, such as new or updated lab assignments
+=======
+   - [ ] c) so that we can pull updates from the `assignments` repo, such as new or updated lab assignments
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] d) so that the initial state of our `username-labs` repo will be the same as the state of the `assignments` repo
 
 5. If the remote repositories are set up as in the following segment, how would you pull changes from the `dat515-2025/assignments` repo into the `dat515-2025/student-labs` repo you are working in?
@@ -60,7 +76,11 @@ No other changes to the text should be made.
    ```
 
    - [ ] a) `git pull dat515-2025/assignments.git dat515-2025/student-labs.git`
+<<<<<<< HEAD
    - [x] b) `git pull course-assignments main`
+=======
+   - [ ] b) `git pull course-assignments main`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] c) `git pull main course-assignments`
    - [ ] d) `git pull course-assignments origin`
    - [ ] e) `git pull`
@@ -71,7 +91,11 @@ No other changes to the text should be made.
    git checkout -b experimental
    ```
 
+<<<<<<< HEAD
    - [x] a) creates a new branch called `experimental` and switches to it
+=======
+   - [ ] a) creates a new branch called `experimental` and switches to it
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] b) switches to the branch `experimental`, but only if it exists
    - [ ] c) resets any changes made to the `experimental` branch
    - [ ] d) opens a new window which displays the difference between the current and the `experimental` branches
@@ -101,22 +125,38 @@ No other changes to the text should be made.
    - [ ] a) `go/.DS_Store`, `go/main.go` and `notes/work-notes.md`
    - [ ] b) `go/main.go`, `notes/work-notes.md` and `python/main.py`
    - [ ] c) `go/main.go` and `notes/work-notes.md`
+<<<<<<< HEAD
    - [x] d) `go/.DS_Store` and `go/main.go`
 
 8. Which command lets you see the changes made to `file.txt` relative to the staging area (i.e. unstaged changes to `file.txt`)?
 
    - [x] a) `git diff file.txt`
+=======
+   - [ ] d) `go/.DS_Store` and `go/main.go`
+
+8. Which command lets you see the changes made to `file.txt` relative to the staging area (i.e. unstaged changes to `file.txt`)?
+
+   - [ ] a) `git diff file.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] b) `git diff HEAD file.txt`
    - [ ] c) `git diff --cached file.txt`
 
 9. Which command lets you see all changes made to `file.txt` since the latest commit?
 
    - [ ] a) `git diff file.txt`
+<<<<<<< HEAD
    - [x] b) `git diff HEAD file.txt`
+=======
+   - [ ] b) `git diff HEAD file.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
    - [ ] c) `git diff --cached file.txt`
 
 10. When you run `git pull` and get a merge conflict, which of the below approaches is most suited to resolving the merge conflict?
 
     - [ ] a) make a backup by copying the directory to another location, delete the original directory, clone the repository again, then manually copy changes into the newly cloned repository from the backup
     - [ ] b) make a backup by copying the directory to another location, revert the repository back to a previous commit without any conflicts, then manually copy changes into the repository while avoiding conflicts
+<<<<<<< HEAD
     - [x] c) fix the conflict by editing the conflicting files with a text editor, then remove the lines starting with `>>>>`, `====` and `<<<<` which were added by Git.
+=======
+    - [ ] c) fix the conflict by editing the conflicting files with a text editor, then remove the lines starting with `>>>>`, `====` and `<<<<` which were added by Git.
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d

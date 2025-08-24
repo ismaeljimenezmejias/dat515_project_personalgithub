@@ -2,7 +2,11 @@
 package multiwriter
 
 import (
+<<<<<<< HEAD
 	"dat520/lab1/gointro/errors"
+=======
+	"dat515/2go/errors"
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
 	"io"
 )
 

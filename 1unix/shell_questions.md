@@ -12,32 +12,52 @@ No other changes to the text should be made.
     - [ ] a) `du -h -l .`
     - [ ] b) `du -h -–max-depth=1 .`
     - [ ] c) `du --max-depth=1`
+<<<<<<< HEAD
     - [x] d) `du -h -a --max-depth=1 .`
+=======
+    - [ ] d) `du -h -a --max-depth=1 .`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
 
 2. Which command continuously updates the displayed contents of a file named `file.txt` in real time, while its contents are being modified by some other process?
 
     - [ ] a) `cat file.txt`
     - [ ] b) `cat -f file.txt`
+<<<<<<< HEAD
     - [x] c) `tail -f file.txt`
+=======
+    - [ ] c) `tail -f file.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] d) `head -f file.txt`
 
 3. Which command removes a non-empty directory called `temp_files`?
 
     - [ ] a) `rm temp_files`
+<<<<<<< HEAD
     - [x] b) `rm -r temp_files`
+=======
+    - [ ] b) `rm -r temp_files`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] c) `rmdir temp_files`
     - [ ] d) `rem temp_files`
 
 4. Which command prints the 10 most recent kernel messages?
 
     - [ ] a) `dmesg -k`
+<<<<<<< HEAD
     - [x] b) `dmesg -k | tail`
+=======
+    - [ ] b) `dmesg -k | tail`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] c) `dmesg | head`
     - [ ] d) `dmesg`
 
 5. Which command is used to display the manual pages for the command cat?
 
+<<<<<<< HEAD
     - [x] a) `man cat`
+=======
+    - [ ] a) `man cat`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] b) `manual cat`
     - [ ] c) `? cat`
     - [ ] d) `guide cat`
@@ -47,11 +67,19 @@ No other changes to the text should be made.
     - [ ] a) `cat -10 readme.txt`
     - [ ] b) `less -10 readme.txt`
     - [ ] c) `tail readme.txt`
+<<<<<<< HEAD
     - [x] d) `head readme.txt`
 
 7. Which command renames a file called `file1.txt` to `file2.txt`?
 
     - [x] a) `mv file1.txt file2.txt`
+=======
+    - [ ] d) `head readme.txt`
+
+7. Which command renames a file called `file1.txt` to `file2.txt`?
+
+    - [ ] a) `mv file1.txt file2.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] b) `cp file1.txt file2.txt`
     - [ ] c) `ren file1.txt file2.txt`
     - [ ] d) `ren file2.txt file1.txt`
@@ -60,7 +88,11 @@ No other changes to the text should be made.
 
     - [ ] a) `ls -l`
     - [ ] b) `ls -a`
+<<<<<<< HEAD
     - [x] c) `find . -type l -ls`
+=======
+    - [ ] c) `find . -type l -ls`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] d) `find . -type f -ls`
 
 9. Which command will display the contents of `readme.txt` with line numbers?
@@ -68,25 +100,41 @@ No other changes to the text should be made.
     - [ ] a) `cat readme.txt`
     - [ ] b) `cat -l readme.txt`
     - [ ] c) `cat -A readme.txt`
+<<<<<<< HEAD
     - [x] d) `cat -n readme.txt`
+=======
+    - [ ] d) `cat -n readme.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
 
 10. Which command will count only the number of lines in `readme.txt`?
 
     - [ ] a) `wc readme.txt`
+<<<<<<< HEAD
     - [x] b) `wc -l readme.txt`
+=======
+    - [ ] b) `wc -l readme.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] c) `wc -m readme.txt`
     - [ ] d) `wc -n readme.txt`
 
 11. Which command will display a list of currently logged in users on the system?
 
     - [ ] a) `whoami`
+<<<<<<< HEAD
     - [x] b) `who`
+=======
+    - [ ] b) `who`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] c) `top`
     - [ ] d) `ps -al`
 
 12. Which command will remove the trailing new line from echoing hello?
 
+<<<<<<< HEAD
     - [x] a) `echo -n hello`
+=======
+    - [ ] a) `echo -n hello`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] b) `echo \n hello`
     - [ ] c) `echo n hello`
     - [ ] d) `echo /n hello`
@@ -95,7 +143,11 @@ No other changes to the text should be made.
 
     - [ ] a) `password`
     - [ ] b) `pwd`
+<<<<<<< HEAD
     - [x] c) `passwd`
+=======
+    - [ ] c) `passwd`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] d) `pw`
 
 14. The command `history` will show the commands previously run in the terminal. For example
@@ -111,12 +163,20 @@ No other changes to the text should be made.
     How can you repeat command `ls -al`?
     - [ ] a) `repeat 1052`
     - [ ] b) `redo 1052`
+<<<<<<< HEAD
     - [x] c) `!1052`
+=======
+    - [ ] c) `!1052`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] d) `1052`
 
 15. What does the `less` command do?
 
+<<<<<<< HEAD
     - [x] a) Displays the contents of a file in a manner that allows users to move forwards or backwards through the file.
+=======
+    - [ ] a) Displays the contents of a file in a manner that allows users to move forwards or backwards through the file.
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] b) Displays the contents of a file in a manner that allows users to move only forwards through the file.
     - [ ] c) Displays the contents of a file in a manner that allows users to move only backwards through the file.
     - [ ] d) Allows a user to edit a file.
@@ -124,14 +184,22 @@ No other changes to the text should be made.
 16. How can you exit the `less` command?
 
     - [ ] a) Esc
+<<<<<<< HEAD
     - [x] b) q
+=======
+    - [ ] b) q
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] c) z
     - [ ] d) x
 
 17. What command will display the running processes of the current user?
     (Only Linux; macOS behaves differently.)
 
+<<<<<<< HEAD
     - [x] a) `ps -u <your user ID or user name>`
+=======
+    - [ ] a) `ps -u <your user ID or user name>`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] b) `ps -a`
     - [ ] c) `ps -e`
     - [ ] d) `ps`
@@ -141,12 +209,20 @@ No other changes to the text should be made.
     - [ ] a) `iostat`
     - [ ] b) `netstat`
     - [ ] c) `uptime`
+<<<<<<< HEAD
     - [x] d) `top`
+=======
+    - [ ] d) `top`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
 
 19. What does the `screen` command do?
 
     - [ ] a) clears the screen
+<<<<<<< HEAD
     - [x] b) starts a virtual terminal
+=======
+    - [ ] b) starts a virtual terminal
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
     - [ ] c) closes terminal
     - [ ] d) prints screen
 
@@ -155,4 +231,8 @@ No other changes to the text should be made.
     - [ ] a) `sort -r file.txt`
     - [ ] b) `sort file.txt`
     - [ ] c) `sort -n file.txt`
+<<<<<<< HEAD
     - [x] d) `sort -r -n file.txt`
+=======
+    - [ ] d) `sort -r -n file.txt`
+>>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d

@@ -12,6 +12,7 @@ No other changes to the text should be made.
     - [ ] a) only write (`-w-`)
     - [ ] b) only execute (`--x`)
     - [x] c) both write and execute (`-wx`)
+    - [ ] c) both write and execute (`-wx`)
     - [ ] d) all permissions (`rwx`)
 
 2. Which permission(s) (listed as `rwx` by `ls -l`) for the directory `dir` are required to list its contents and permissions with the `ls -l` command?
@@ -20,6 +21,7 @@ No other changes to the text should be made.
     - [ ] b) only execute (`--x`)
     - [ ] c) both read and write (`rw-`)
     - [x] d) both read and execute (`r-x`)
+    - [ ] d) both read and execute (`r-x`)
     - [ ] e) all permissions (`rwx`)
 
 3. Which permission(s) (listed as `rwx` by `ls -l`) for the directory `dir` are required to create an empty file within it by calling `touch dir/empty_file`?
@@ -29,6 +31,7 @@ No other changes to the text should be made.
     - [ ] c) both read and write (`rw-`)
     - [ ] d) both read and execute (`r-x`)
     - [x] e) both write and execute (`-wx`)
+    - [ ] e) both write and execute (`-wx`)
     - [ ] f) all permissions (`rwx`)
 
 4. Which is the shortest way to change the working directory to your home directory (assuming your username is `user`)?
@@ -38,6 +41,7 @@ No other changes to the text should be made.
     - [ ] c) `cd /home`
     - [ ] d) `cd /home/user`
     - [x] e) `cd`
+    - [ ] e) `cd`
 
 5. Which of the following uses of `chmod` will remove the write and execute permissions to `file` for all users which are not the owner of `file` and are not part of the group which owns `file`?
    The permissions for the file owner and the group which owns the file must remain unchanged.
@@ -47,6 +51,7 @@ No other changes to the text should be made.
     - [ ] b) `chmod -wx file`
     - [ ] c) `chmod +r-wx file`
     - [x] d) `chmod o-wx file`
+    - [ ] d) `chmod o-wx file`
 
 6. Select the following use of `chmod` which modifies the permissions of `file` such that:
    (1) the user that owns `file` has `rwx` permissions.
@@ -54,6 +59,7 @@ No other changes to the text should be made.
    (3) other users have no permissions (`---`).
 
     - [x] a) `chmod 750 file`
+    - [ ] a) `chmod 750 file`
     - [ ] b) `chmod 760 file`
     - [ ] c) `chmod urwxgrxo-rwx file`
     - [ ] d) `chmod u+rwx g+rx o-rwx file`
@@ -70,6 +76,7 @@ No other changes to the text should be made.
     - [ ] a) moves the file `file` into `dir` if it has the `.py` file suffix
     - [ ] b) moves the file `file` into `dir` if it has the `.py` suffix, then gives it the `.go` suffix
     - [x] c) renames any file within `dir` with the `.py` suffix to have the `.go` suffix
+    - [ ] c) renames any file within `dir` with the `.py` suffix to have the `.go` suffix
     - [ ] d) moves any files with a `.py` or `.go` suffix out of `dir`
 
 8. What does the following command sequence do?
@@ -79,6 +86,7 @@ No other changes to the text should be made.
     ```
 
     - [x] a) prints each line of files in the current directory which contain the text `heck`, and replaces any occurrence of `heck` in the output with `fluff`
+    - [ ] a) prints each line of files in the current directory which contain the text `heck`, and replaces any occurrence of `heck` in the output with `fluff`
     - [ ] b) replaces occurrences of `heck` with `fluff` in all files in the current directory
     - [ ] c) in any file with a `:` character on any line, it replaces any occurrence of `heck` with `fluff`
     - [ ] d) in any file with a `:` character on the same line as the text `heck`, it replaces occurrences of `heck` on that line with `fluff` and prints the result
@@ -91,5 +99,6 @@ No other changes to the text should be made.
 
     - [ ] a) finds each file in this directory and replaces occurrences of `Linux` with `GNU/Linux`
     - [x] b) recursively finds each file in this directory or subdirectories and replaces occurrences of `Linux` with `GNU/Linux`
+    - [ ] b) recursively finds each file in this directory or subdirectories and replaces occurrences of `Linux` with `GNU/Linux`
     - [ ] c) finds each file in this directory with the `.f` suffix and replaces occurrences of `Linux` with `GNU/Linux`
     - [ ] d) finds each flagged file in this directory and replaces occurrences of `Linux` with `GNU/Linux`
