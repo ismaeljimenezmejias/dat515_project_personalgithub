@@ -1,5 +1,4 @@
-// Package collect provides exercises for working with Go's collection types, including maps and slices.
-package collect
+
 
 // Task:
 //
@@ -23,23 +22,24 @@ package collect
 // Once you have fixed the functions, run the commands again to confirm
 // that the tests pass when run multiple times.
 
+// keys returns the keys of a map x as a slice of strings.
+package collect
 
 import (
 	"maps"
 	"slices"
-	"sort"
 )
 
 // keys returns the keys of a map x as a slice of strings.
 func keys(x map[string]int) []string {
-	k := slices.Collect(maps.Keys(x)) // convierte iterador a []string
-	sort.Strings(k)                    // stdlib sort
-	return k
+	ks := slices.Collect(maps.Keys(x)) // convertir iter.Seq[string] -> []string
+	slices.Sort(ks)                    // ordenamos para hacer determinista
+	return ks
 }
 
-// values returns the values of a map x as a slice of ints.
+// values returns the values of a map x as a slice of integers.
 func values(x map[string]int) []int {
-	v := slices.Collect(maps.Values(x)) // convierte iterador a []int
-	sort.Ints(v)                        // stdlib sort
-	return v
+	vs := slices.Collect(maps.Values(x)) // convertir iter.Seq[int] -> []int
+	slices.Sort(vs)                      // ordenamos para hacer determinista
+	return vs
 }
