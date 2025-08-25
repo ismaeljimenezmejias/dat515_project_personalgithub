@@ -39,6 +39,44 @@ The first error + " (and X other errors)"
 */
 
 // Error returns a string representation of the Errors type.
+// Asumo que Errors está definido así:
+
+import "fmt"
+
+// Error implements the error interface for Errors.
 func (m Errors) Error() string {
-	return ""
+	n := len(m)
+	if n == 0 {
+		return "(0 errors)"
+	}
+
+	// Primer error no nil
+	var first string
+	for _, e := range m {
+		if e != nil {
+			first = e.Error()
+			break
+		}
+	}
+
+	if first == "" { // todos los errores son nil
+		return "(0 errors)"
+	}
+
+	// Contamos cuántos errores no nil hay aparte del primero
+	count := 0
+	for _, e := range m {
+		if e != nil {
+			count++
+		}
+	}
+
+	switch count {
+	case 1:
+		return first
+	case 2:
+		return fmt.Sprintf("%s (and 1 other error)", first)
+	default:
+		return fmt.Sprintf("%s (and %d other errors)", first, count-1)
+	}
 }
