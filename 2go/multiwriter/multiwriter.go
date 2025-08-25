@@ -1,47 +1,44 @@
-// Package multiwriter provides utilities for writing to multiple destinations simultaneously.
 package multiwriter
 
 import (
-<<<<<<< HEAD
-	"dat520/lab1/gointro/errors"
-=======
 	"dat515/2go/errors"
->>>>>>> a86a1577c08c328e7a6689c81cf0e24b8263d26d
 	"io"
 )
 
-/*
-Task: WriteTo function for multiple writers
-
-In this task you are going to implement a WriteTo function that writes to
-multiple writers. This is similar to the io.MultiWriter() function. However,
-the io.MultiWriter() function can only return a single error, and it is not
-possible to figure out which of the original writers caused the error. That
-is, you must use the Errors type that you developed for the `Task: Errors` under the `lab2/gointro/errors` package.
-
-Implement the WriteTo() function defined below.
-
-For the following conditions should be satisfied.
-
-1. Write the []byte slice to all writers.
-
-2. The function should return (using n) the bytes written by each writer with
-index position corresponding to the index position of the writer. An empty
-slice ([]int{}) should be returned if there are no writers as argument to the
-function.
-
-3. If one of the writers returned an error, that error should be returned in
-the index position corresponding to the index position of the writer.
-
-4. If one of the writers could not write the entire buffer, the error
-io.ErrShortWrite should be returned in the index position corresponding to
-that writer's index position.
-
-5. If no errors were observed, the function must return n, nil.
-*/
-
-// WriteTo writes b to the provided writers, returns a slice of the number
-// of byte written to each writer, and a slice of errors, if any.
+// WriteTo writes b to all provided writers and returns the bytes written
+// and errors corresponding to each writer.
 func WriteTo(b []byte, writers ...io.Writer) (n []int, errs errors.Errors) {
-	return []int{}, nil
+	if len(writers) == 0 {
+		return []int{}, nil
+	}
+
+	n = make([]int, len(writers))
+	errs = make(errors.Errors, len(writers))
+
+	for i, w := range writers {
+		written, err := w.Write(b)
+		n[i] = written
+
+		// Si hubo error de escritura o no se escribió todo
+		if err != nil {
+			errs[i] = err
+		} else if written != len(b) {
+			errs[i] = io.ErrShortWrite
+		}
+	}
+
+	// Comprobamos si todos los errores son nil
+	allNil := true
+	for _, e := range errs {
+		if e != nil {
+			allNil = false
+			break
+		}
+	}
+
+	if allNil {
+		return n, nil
+	}
+
+	return n, errs
 }
