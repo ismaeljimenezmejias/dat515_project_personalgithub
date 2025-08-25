@@ -23,12 +23,14 @@ package collect
 // Once you have fixed the functions, run the commands again to confirm
 // that the tests pass when run multiple times.
 
+import "sort"
 // keys returns the keys of a map x as a slice of strings.
 func keys(x map[string]int) []string {
 	var keys []string
 	for k := range x {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 	return keys
 }
 
@@ -38,5 +40,6 @@ func values(x map[string]int) []int {
 	for _, v := range x {
 		values = append(values, v)
 	}
+	sort.Ints(values)
 	return values
 }
