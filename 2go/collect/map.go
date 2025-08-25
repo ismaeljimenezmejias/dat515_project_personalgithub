@@ -25,24 +25,23 @@
 // keys returns the keys of a map x as a slice of strings.
 package collect
 
-import "sort"
+import (
+	"maps"
+	"slices"
+)
 
 // keys returns the keys of a map x as a slice of strings, sorted alphabetically.
 func keys(x map[string]int) []string {
-    var keys []string
-    for k := range x {
-        keys = append(keys, k)
-    }
-    sort.Strings(keys)
-    return keys
+	iterKeys := maps.Keys(x)
+	ks := slices.Collect(iterKeys)
+	slices.Sort(ks)
+	return ks
 }
 
 // values returns the values of a map x as a slice of integers, sorted numerically.
 func values(x map[string]int) []int {
-    var values []int
-    for _, v := range x {
-        values = append(values, v)
-    }
-    sort.Ints(values)
-    return values
+	iterVals := maps.Values(x)
+	vs := slices.Collect(iterVals)
+	slices.Sort(vs)
+	return vs
 }
