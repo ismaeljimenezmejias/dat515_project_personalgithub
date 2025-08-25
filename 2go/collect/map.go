@@ -31,13 +31,15 @@ import (
 )
 
 func keys(x map[string]int) []string {
-	ks := slices.Collect(maps.Keys(x))
-	slices.Sort(ks)
+	iterKeys := maps.Keys(x)         // usar stdlib func
+	ks := slices.Collect(iterKeys)   // convertir a slice
+	slices.Sort(ks)                  // ordenar para determinismo
 	return ks
 }
 
 func values(x map[string]int) []int {
-	vs := slices.Collect(maps.Values(x))
-	slices.Sort(vs)
+	iterVals := maps.Values(x)       // usar stdlib func
+	vs := slices.Collect(iterVals)   // convertir a slice
+	slices.Sort(vs)                  // ordenar para determinismo
 	return vs
 }
