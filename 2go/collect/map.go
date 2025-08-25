@@ -30,16 +30,14 @@ import (
 	"slices"
 )
 
-// keys returns the keys of a map x as a slice of strings.
 func keys(x map[string]int) []string {
-	ks := slices.Collect(maps.Keys(x)) // convertir iter.Seq[string] -> []string
-	slices.Sort(ks)                    // ordenamos para hacer determinista
+	ks := slices.Collect(maps.Keys(x))
+	slices.Sort(ks)
 	return ks
 }
 
-// values returns the values of a map x as a slice of integers.
 func values(x map[string]int) []int {
-	vs := slices.Collect(maps.Values(x)) // convertir iter.Seq[int] -> []int
-	slices.Sort(vs)                      // ordenamos para hacer determinista
+	vs := slices.Collect(maps.Values(x))
+	slices.Sort(vs)
 	return vs
 }
