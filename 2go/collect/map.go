@@ -23,26 +23,19 @@ package collect
 // Once you have fixed the functions, run the commands again to confirm
 // that the tests pass when run multiple times.
 import (
-	"maps"
-	"slices"
-	"sort"
+    "maps"
+    "slices"
+    "sort"
 )
 
-// keys returns the keys of a map x as a slice of strings.
 func keys(x map[string]int) []string {
-	keys := slices.Collect(maps.Keys(x)) // iter -> []string
-	slices.Sort(keys)                     // ordena in place
-	return keys
+    k := slices.Collect(maps.Keys(x)) // iter.Seq[string] -> []string
+    sort.Strings(k)
+    return k
 }
 
-
-// values returns the values of a map x as a slice of ints.
 func values(x map[string]int) []int {
-    res := make([]int, 0, len(x))
-    for _, v := range x {
-        res = append(res, v)
-    }
-    sort.Ints(res) // stdlib
-    return res
+    v := slices.Collect(maps.Values(x)) // iter.Seq[int] -> []int
+    sort.Ints(v)
+    return v
 }
-
