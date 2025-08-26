@@ -13,6 +13,7 @@
 - [Task 6 - Image Registry Operations](#task-6---image-registry-operations)
 - [Task 7 - Cleanup and Review](#task-7---cleanup-and-review)
 - [Verification Checklist](#verification-checklist)
+- [QuickFeed Checks](#quickfeed-checks)
 - [Next Steps](#next-steps)
 
 ## Learning Objectives
@@ -305,6 +306,19 @@ Before proceeding to Part 4, ensure you can:
 - Add health checks and metadata
 - Implement security best practices
 - Scan images for security vulnerabilities
+
+## QuickFeed Checks
+
+This lab has some **QuickFeed** checks to help you and us to validate your work.
+We provide an even simpler check that you can run locally to check that your Dockerfiles are correctly configured.
+
+```sh
+cd 4docker/3-dockerfile
+go test -v
+```
+
+If this test passes on your local machine, then the same test should also pass on QuickFeed.
+QuickFeed has a few additional checks for the content of the Dockerfiles.
 
 ## Next Steps
 
