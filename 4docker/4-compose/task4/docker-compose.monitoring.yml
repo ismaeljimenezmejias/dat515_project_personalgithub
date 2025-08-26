@@ -1,0 +1,57 @@
+services:
+  # Application stack from previous section
+  app:
+    build: ../.
+    environment:
+      - DB_HOST=database
+      - REDIS_HOST=cache
+    depends_on:
+      # TODO: Ensure app starts after database and cache
+    networks:
+      - app-network
+      - monitoring
+
+  database:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: webapp
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    networks:
+      - app-network
+
+  cache:
+    image: redis:7-alpine
+    networks:
+      - app-network
+
+  # Monitoring services
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      # TODO: Expose Prometheus on port 9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      # TODO: Connect Prometheus to the monitoring network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      # TODO: Expose Grafana on port 3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      # TODO: Connect Grafana to the monitoring network
+
+volumes:
+  grafana_data:
+
+networks:
+  app-network:
+  monitoring:
