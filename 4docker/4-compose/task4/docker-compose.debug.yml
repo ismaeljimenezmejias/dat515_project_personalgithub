@@ -22,6 +22,6 @@ services:
   redis-commander:
     image: rediscommander/redis-commander:latest
     ports:
-      # Forward the redis-commander port 8081 to the host
+      # TODO: Forward the redis-commander port 8081 to the host
     environment:
       REDIS_HOSTS: local:cache:6379

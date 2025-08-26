@@ -192,7 +192,7 @@ By the end of this lab, you will be able to:
 1. **Examine the Task 3 Files**
 
    ```console
-   cd ../task3
+   cd ../../task3
    cat .env.dev
    cat .env.prod
    cat docker-compose.dev.yml
@@ -202,16 +202,16 @@ By the end of this lab, you will be able to:
 2. **Create Environment-Specific Setup**
 
    ```console
-   mkdir ../environment-demo
-   cd ../environment-demo
+   mkdir environment-demo
+   cd environment-demo
 
    # Copy the base compose file from task2 (required for overrides to work)
-   cp ../task2/docker-compose.yml .
-   cp ../task2/app.py ../task2/requirements.txt ../task2/Dockerfile ../task2/init.sql ../task2/nginx.conf .
+   cp ../../task2/docker-compose.yml .
+   cp ../../task2/app.py ../../task2/requirements.txt ../../task2/Dockerfile ../../task2/init.sql ../../task2/nginx.conf .
 
    # Copy environment-specific files from task3
-   cp ../task3/.env.* .
-   cp ../task3/docker-compose.*.yml .
+   cp ../../task3/.env.* .
+   cp ../../task3/docker-compose.*.yml .
    ```
 
 3. **Test Different Environments**
@@ -258,7 +258,7 @@ By the end of this lab, you will be able to:
 
    ```console
    # Navigate to task4 directory
-   cd ../task4
+   cd ../../task4
 
    # Examine all the provided files
    ls -la
@@ -276,12 +276,11 @@ By the end of this lab, you will be able to:
 2. **Create Monitoring Setup**
 
    ```console
-   # Create new directory for monitoring
-   mkdir ../monitoring
-   cd ../monitoring
+   mkdir monitoring
+   cd monitoring
 
    # Copy the monitoring files
-   cp ../task4/* .
+   cp ../task4/docker-compose.debug.yml ../task4/docker-compose.monitoring.yml ../task4/prometheus.yml .
    ```
 
 3. **Start Monitoring Services**
@@ -313,7 +312,7 @@ By the end of this lab, you will be able to:
 
    ```console
    # Navigate to task5 directory
-   cd ../task5
+   cd ../../task5
 
    # Examine all the provided files
    ls -la
@@ -331,11 +330,11 @@ By the end of this lab, you will be able to:
 
    ```console
    # Create new directory for production
-   mkdir ../production-stack
-   cd ../production-stack
+   mkdir production-stack
+   cd production-stack
 
    # Copy the production files
-   cp -r ../task5/* .
+   cp -r ../secrets ../docker-compose.prod.yml .
 
    # Set proper permissions on secrets
    chmod 600 secrets/*.txt
@@ -367,7 +366,7 @@ By the end of this lab, you will be able to:
 
    ```console
    # Go back to webapp-stack and stop it
-   cd ../webapp-stack
+   cd ../../task2/webapp-stack
    docker compose down -v  # -v removes volumes too
 
    # Stop any other running stacks
