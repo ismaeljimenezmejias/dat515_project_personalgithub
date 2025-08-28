@@ -1,18 +1,11 @@
-// Package jsonhandler provides exercises for JSON marshaling and unmarshaling
-// in Go, which are essential skills for cloud API development and microservice communication.
 package jsonhandler
 
 import (
+	"encoding/json"
 	"time"
 )
 
-// Task: JSON Handling for Cloud APIs
-//
-// This exercise teaches JSON marshaling and unmarshaling, which is essential
-// for working with REST APIs and cloud services. You'll work with a User struct
-// that represents a typical API response.
-
-// User represents a user in a cloud application
+// User representa un usuario en la aplicación
 type User struct {
 	ID        int       `json:"id"`
 	Username  string    `json:"username"`
@@ -21,36 +14,26 @@ type User struct {
 	Active    bool      `json:"active"`
 }
 
-// MarshalUser converts a User struct to JSON bytes.
-// This function should return the JSON representation of the user
-// and any error that occurs during marshaling.
+// MarshalUser convierte un User a JSON
 func MarshalUser(user User) ([]byte, error) {
-	// TODO: Implement JSON marshaling
-	return nil, nil
+	return json.Marshal(user)
 }
 
-// UnmarshalUser converts JSON bytes to a User struct.
-// This function should parse the JSON data into a User struct
-// and return any error that occurs during unmarshaling.
+// UnmarshalUser convierte JSON a User
 func UnmarshalUser(data []byte) (User, error) {
-	// TODO: Implement JSON unmarshaling
 	var user User
-	return user, nil
+	err := json.Unmarshal(data, &user)
+	return user, err
 }
 
-// MarshalUsers converts a slice of User structs to JSON bytes.
-// This function should return the JSON representation of the user slice
-// and any error that occurs during marshaling.
+// MarshalUsers convierte un slice de User a JSON
 func MarshalUsers(users []User) ([]byte, error) {
-	// TODO: Implement JSON marshaling for slice
-	return nil, nil
+	return json.Marshal(users)
 }
 
-// UnmarshalUsers converts JSON bytes to a slice of User structs.
-// This function should parse the JSON data into a slice of User structs
-// and return any error that occurs during unmarshaling.
+// UnmarshalUsers convierte JSON a slice de User
 func UnmarshalUsers(data []byte) ([]User, error) {
-	// TODO: Implement JSON unmarshaling for slice
 	var users []User
-	return users, nil
+	err := json.Unmarshal(data, &users)
+	return users, err
 }
