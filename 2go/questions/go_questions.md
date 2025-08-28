@@ -14,9 +14,9 @@ No other changes to the text should be made.
 
 2. What is the zero value of a slice?
 
-    - [x] a) `[_]`
+    - [ ] a) `[_]`
     - [ ] b) `[0]`
-    - [ ] c) `nil`
+    - [x] c) `nil`
     - [ ] d) `null`
 
 3. Which of these is a correct way of declaring a slice?
