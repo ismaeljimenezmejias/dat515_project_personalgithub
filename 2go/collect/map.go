@@ -32,16 +32,11 @@ import (
 
 // keys returns the keys of a map x as a slice of strings, sorted alphabetically.
 func keys(x map[string]int) []string {
-	iterKeys := maps.Keys(x)
-	ks := slices.Collect(iterKeys)
-	slices.Sort(ks)
-	return ks
+	
+	return slices.Sorted(maps.Keys(x))
 }
 
 // values returns the values of a map x as a slice of integers, sorted numerically.
 func values(x map[string]int) []int {
-	iterVals := maps.Values(x)
-	vs := slices.Collect(iterVals)
-	slices.Sort(vs)
-	return vs
+	return slices.Sorted(maps.Values(x))
 }
