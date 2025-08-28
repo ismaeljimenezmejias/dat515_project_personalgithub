@@ -46,7 +46,18 @@ To take this option, proceed to [Part 2: Docker Basics](../2-basics/README.md) t
 
    Use existing network in your project called dat515-network.
 
-3. **SSH Key Management**
+3. **Security Configuration:**
+
+   **Manage Security Group Rules:**
+
+   - Navigate to `Project->Network->Security Groups`
+   - Select Manage Rules, and click `+ Add Rule`
+   - Select SSH from the Rule dropdown menu
+   - In the CIDR field, enter the IP address from where you want to connect
+     For example, to grant access to the whole university network: `152.94.0.0/16`
+   - Click Add
+
+4. **SSH Key Management**
 
    **Option 1 - Import Existing SSH Key**
 
@@ -68,7 +79,7 @@ To take this option, proceed to [Part 2: Docker Basics](../2-basics/README.md) t
    - Click Create Key Pair
    - This will download the private key file; move this to your `.ssh` directory
 
-4. **Create Virtual Machine Instance**
+5. **Create Virtual Machine Instance**
 
    - Navigate to `Project->Compute->Instances`
    - Click Launch Instance
@@ -79,7 +90,7 @@ To take this option, proceed to [Part 2: Docker Basics](../2-basics/README.md) t
    - **Networks and Security Groups:** Should be configured correctly from previous steps
    - Click Launch Instance
 
-5. **Network Access Configuration - Associate Floating IP**
+6. **Network Access Configuration - Associate Floating IP**
 
    - Still on the `Project->Compute->Instances` page
    - Floating IP (public IPv4) is required for external access
@@ -89,7 +100,7 @@ To take this option, proceed to [Part 2: Docker Basics](../2-basics/README.md) t
    - Click Allocate IP
    - Click Associate
 
-6. **Connect via SSH**
+7. **Connect via SSH**
 
    - You can now SSH to the VM using the floating IP and private key
    - **Note:** This step requires UiS campus network access
