@@ -2,7 +2,7 @@ package interfaces
 
 import "fmt"
 
-// -------- Interfaces --------
+// Interfaces
 type Storage interface {
 	Store(key string, value []byte) error
 	Retrieve(key string) ([]byte, error)
@@ -26,68 +26,79 @@ type CloudService interface {
 }
 
 // -------- MemoryStorage --------
-type MemoryStorage struct{ Data map[string][]byte }
+type MemoryStorage struct {
+	data map[string][]byte
+}
 
-func NewMemoryStorage() *MemoryStorage { return &MemoryStorage{Data: make(map[string][]byte)} }
+func NewMemoryStorage() *MemoryStorage {
+	return &MemoryStorage{data: make(map[string][]byte)}
+}
 
 func (m *MemoryStorage) Store(key string, value []byte) error {
 	if key == "" {
 		return fmt.Errorf("empty key")
 	}
-	m.Data[key] = value
+	m.data[key] = value
 	return nil
 }
 
 func (m *MemoryStorage) Retrieve(key string) ([]byte, error) {
-	val, ok := m.Data[key]
+	v, ok := m.data[key]
 	if !ok {
-		return nil, fmt.Errorf("key %s not found", key)
+		return nil, fmt.Errorf("key not found")
 	}
-	return val, nil
+	return v, nil
 }
 
 func (m *MemoryStorage) Delete(key string) error {
-	delete(m.Data, key)
+	delete(m.data, key)
 	return nil
 }
 
 // -------- MemoryCache --------
-type MemoryCache struct{ Data map[string][]byte }
+type MemoryCache struct {
+	data map[string][]byte
+}
 
-func NewMemoryCache() *MemoryCache { return &MemoryCache{Data: make(map[string][]byte)} }
+func NewMemoryCache() *MemoryCache {
+	return &MemoryCache{data: make(map[string][]byte)}
+}
 
 func (c *MemoryCache) Set(key string, value []byte) error {
-	if key == "" {
-		return fmt.Errorf("empty key")
-	}
-	c.Data[key] = value
+	c.data[key] = value
 	return nil
 }
 
 func (c *MemoryCache) Get(key string) ([]byte, error) {
-	val, ok := c.Data[key]
+	v, ok := c.data[key]
 	if !ok {
-		return nil, fmt.Errorf("key %s not found", key)
+		return nil, fmt.Errorf("key not found")
 	}
-	return val, nil
+	return v, nil
 }
 
 func (c *MemoryCache) Clear(key string) error {
-	delete(c.Data, key)
+	delete(c.data, key)
 	return nil
 }
 
 // -------- SimpleLogger --------
-type SimpleLogger struct{ Logs []string }
+type SimpleLogger struct {
+	Logs []string
+}
 
-func NewSimpleLogger() *SimpleLogger { return &SimpleLogger{Logs: []string{}} }
+func NewSimpleLogger() *SimpleLogger {
+	return &SimpleLogger{Logs: []string{}}
+}
 
-func (s *SimpleLogger) Log(message string) error {
-	s.Logs = append(s.Logs, message)
+func (l *SimpleLogger) Log(message string) error {
+	l.Logs = append(l.Logs, message)
 	return nil
 }
 
-func (s *SimpleLogger) GetLogs() []string { return s.Logs }
+func (l *SimpleLogger) GetLogs() []string {
+	return l.Logs
+}
 
 // -------- CompositeCloudService --------
 type CompositeCloudService struct {
@@ -97,25 +108,33 @@ type CompositeCloudService struct {
 }
 
 func NewCompositeCloudService(storage Storage, cache Cache, logger Logger) *CompositeCloudService {
-	return &CompositeCloudService{Storage: storage, Cache: cache, Logger: logger}
+	return &CompositeCloudService{
+		Storage: storage,
+		Cache:   cache,
+		Logger:  logger,
+	}
 }
 
 func (c *CompositeCloudService) ProcessRequest(key string) ([]byte, error) {
-	c.Logger.Log("Processing request for key: " + key)
+	c.Log("Processing request for key: " + key)
 
-	if val, err := c.Cache.Get(key); err == nil {
-		c.Logger.Log("Cache hit for key: " + key)
+	// 1. Check cache first
+	val, err := c.Cache.Get(key)
+	if err == nil {
+		c.Log("Cache hit for key: " + key)
 		return val, nil
 	}
 
-	val, err := c.Storage.Retrieve(key)
+	// 2. If not in cache, get from storage
+	val, err = c.Storage.Retrieve(key)
 	if err != nil {
-		c.Logger.Log("Storage miss for key: " + key)
+		c.Log("Storage miss for key: " + key)
 		return nil, err
 	}
 
+	// 3. Put in cache
 	c.Cache.Set(key, val)
-	c.Logger.Log("Stored key in cache: " + key)
-	c.Logger.Log("Request processed for key: " + key)
+	c.Log("Stored key in cache: " + key)
+	c.Log("Request processed for key: " + key)
 	return val, nil
 }
