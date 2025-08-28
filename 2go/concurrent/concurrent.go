@@ -1,77 +1,145 @@
-// Package concurrent provides exercises for goroutines and channels
-// which are essential for building scalable cloud applications.
 package concurrent
 
-// Task: Concurrency with Goroutines for Cloud Applications
-//
-// This exercise teaches goroutines and channels which are essential for building
-// scalable cloud applications. You'll learn to handle concurrent requests,
-// parallel processing, and synchronization patterns common in cloud services.
+import (
+	"sync"
+)
 
-// WorkerResult represents the result of a worker task
+// WorkerResult representa el resultado de un worker
 type WorkerResult struct {
 	ID     int
 	Result int
 	Error  error
 }
 
-// ProcessConcurrently processes a slice of numbers concurrently using goroutines.
-// It should spawn a goroutine for each number, double it, and collect results.
-// Use channels to communicate results back to the main goroutine.
-// The function should return results in the same order as the input.
+// ProcessConcurrently procesa un slice de enteros en paralelo y duplica cada número
 func ProcessConcurrently(numbers []int) []int {
-	// TODO: Implement concurrent processing using goroutines and channels
-	return nil
+	if len(numbers) == 0 {
+		return []int{}
+	}
+
+	results := make([]int, len(numbers))
+	var wg sync.WaitGroup
+	wg.Add(len(numbers))
+
+	for i, n := range numbers {
+		go func(idx, val int) {
+			defer wg.Done()
+			results[idx] = val * 2
+		}(i, n)
+	}
+
+	wg.Wait()
+	return results
 }
 
-// WorkerPool implements a worker pool pattern commonly used in cloud services.
-// It should create 'numWorkers' goroutines that process tasks from the 'tasks' channel.
-// Each task is an integer that should be doubled.
-// Results should be sent to the returned channel as WorkerResult structs.
-// The pool should stop when the tasks channel is closed.
+// WorkerPool implementa un pool de workers que duplican los números
 func WorkerPool(numWorkers int, tasks <-chan int) <-chan WorkerResult {
-	// TODO: Implement worker pool pattern
-	return nil
+	out := make(chan WorkerResult)
+	if numWorkers <= 0 {
+		close(out)
+		return out
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(numWorkers)
+
+	for w := 0; w < numWorkers; w++ {
+		go func(workerID int) {
+			defer wg.Done()
+			for task := range tasks {
+				out <- WorkerResult{
+					ID:     workerID,
+					Result: task * 2,
+					Error:  nil,
+				}
+			}
+		}(w)
+	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
+	return out
 }
 
-// RateLimitedProcessor processes items with a rate limit using channels.
-// It should process at most 'rateLimit' items per time period.
-// Use a buffered channel as a semaphore to control the rate.
-// Each item should be processed by doubling its value.
+// RateLimitedProcessor procesa elementos con límite de tasa
 func RateLimitedProcessor(items []int, rateLimit int) []int {
-	// TODO: Implement rate-limited processing
-	return nil
+	if len(items) == 0 || rateLimit <= 0 {
+		return []int{}
+	}
+
+	results := make([]int, len(items))
+	sem := make(chan struct{}, rateLimit)
+	var wg sync.WaitGroup
+	wg.Add(len(items))
+
+	for i, val := range items {
+		go func(idx, v int) {
+			sem <- struct{}{}           // bloquear
+			defer func() { <-sem }()    // liberar
+			defer wg.Done()
+			results[idx] = v * 2
+		}(i, val)
+	}
+
+	wg.Wait()
+	return results
 }
 
-// FanOutFanIn demonstrates the fan-out/fan-in pattern.
-// Fan-out: distribute work across multiple goroutines
-// Fan-in: collect results from multiple goroutines into a single channel
-// Process the input slice by splitting it across 'numWorkers' goroutines,
-// each doubling their assigned numbers, then collect all results.
+// FanOutFanIn distribuye trabajo en numWorkers y recopila resultados
 func FanOutFanIn(numbers []int, numWorkers int) []int {
-	// TODO: Implement fan-out/fan-in pattern
-	return nil
+	if len(numbers) == 0 || numWorkers <= 0 {
+		return []int{}
+	}
+
+	results := make([]int, len(numbers))
+	done := make(chan struct{})
+	chunkSize := (len(numbers) + numWorkers - 1) / numWorkers
+
+	for w := 0; w < numWorkers; w++ {
+		start := w * chunkSize
+		end := start + chunkSize
+		if end > len(numbers) {
+			end = len(numbers)
+		}
+		go func(s, e int) {
+			for i := s; i < e; i++ {
+				results[i] = numbers[i] * 2
+			}
+			done <- struct{}{}
+		}(start, end)
+	}
+
+	for w := 0; w < numWorkers; w++ {
+		<-done
+	}
+
+	return results
 }
 
-// SafeCounter implements a thread-safe counter using mutex.
-// This is important for maintaining state in concurrent cloud applications.
+// SafeCounter es un contador seguro para concurrencia
 type SafeCounter struct {
-	// TODO: Add necessary fields (mutex and counter)
+	mu sync.Mutex
+	v  int
 }
 
-// NewSafeCounter creates a new SafeCounter
+// NewSafeCounter crea un nuevo SafeCounter
 func NewSafeCounter() *SafeCounter {
-	// TODO: Initialize SafeCounter
-	return nil
+	return &SafeCounter{}
 }
 
-// Increment safely increments the counter
+// Increment incrementa de forma segura
 func (c *SafeCounter) Increment() {
-	// TODO: Implement thread-safe increment
+	c.mu.Lock()
+	c.v++
+	c.mu.Unlock()
 }
 
-// Value safely returns the current counter value
+// Value devuelve el valor de forma segura
 func (c *SafeCounter) Value() int {
-	// TODO: Implement thread-safe value retrieval
-	return 0
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.v
 }
