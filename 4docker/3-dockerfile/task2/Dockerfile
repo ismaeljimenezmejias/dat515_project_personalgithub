@@ -17,6 +17,12 @@ ENV PYTHONUNBUFFERED=1
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN mkdir -p /app && chown appuser:appuser /app
 
+# Update package list and install curl
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # TODO : Set working directory (app)
 
 # TODO : Copy application files (app.py) and change ownership (appuser)
