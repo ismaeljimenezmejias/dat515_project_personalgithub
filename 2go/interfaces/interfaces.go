@@ -107,9 +107,9 @@ func (s *SimpleLogger) GetLogs() []string {
 // --- CompositeCloudService ---
 
 type CompositeCloudService struct {
-	Storage
-	Cache
-	Logger
+	Storage Storage
+	Cache   Cache
+	Logger  Logger
 }
 
 func NewCompositeCloudService(storage Storage, cache Cache, logger Logger) *CompositeCloudService {
@@ -120,22 +120,54 @@ func NewCompositeCloudService(storage Storage, cache Cache, logger Logger) *Comp
 	}
 }
 
+// Storage methods
+func (c *CompositeCloudService) Store(key string, value []byte) error {
+	return c.Storage.Store(key, value)
+}
+
+func (c *CompositeCloudService) Retrieve(key string) ([]byte, error) {
+	return c.Storage.Retrieve(key)
+}
+
+func (c *CompositeCloudService) Delete(key string) error {
+	return c.Storage.Delete(key)
+}
+
+// Cache methods
+func (c *CompositeCloudService) Set(key string, value []byte) error {
+	return c.Cache.Set(key, value)
+}
+
+func (c *CompositeCloudService) Get(key string) ([]byte, error) {
+	return c.Cache.Get(key)
+}
+
+func (c *CompositeCloudService) Clear(key string) error {
+	return c.Cache.Clear(key)
+}
+
+// Logger method
+func (c *CompositeCloudService) Log(message string) error {
+	return c.Logger.Log(message)
+}
+
+// ProcessRequest: uses logger, cache, and storage
 func (c *CompositeCloudService) ProcessRequest(key string) ([]byte, error) {
-    c.Log("Processing request: " + key)
-    c.Log("Checking cache for key: " + key) // <-- nuevo log
+	c.Log("Processing request: " + key)
+	c.Log("Checking cache for key: " + key)
 
-    val, err := c.Cache.Get(key)
-    if err == nil {
-        c.Log("Cache hit: " + key)
-        return val, nil
-    }
+	val, err := c.Cache.Get(key)
+	if err == nil {
+		c.Log("Cache hit: " + key)
+		return val, nil
+	}
 
-    val, err = c.Storage.Retrieve(key)
-    if err != nil {
-        return nil, err
-    }
+	val, err = c.Storage.Retrieve(key)
+	if err != nil {
+		return nil, err
+	}
 
-    c.Cache.Set(key, val)
-    c.Log("Request completed: " + key)
-    return val, nil
+	c.Cache.Set(key, val)
+	c.Log("Request completed: " + key)
+	return val, nil
 }
