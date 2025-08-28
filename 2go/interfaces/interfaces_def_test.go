@@ -235,7 +235,7 @@ func testProcessRequest(t *testing.T, scoreDec func()) {
 	}
 
 	// Test second request (should be cache hit)
-	logger.logs = nil // Clear logs for second test
+	logger.Logs = nil // Clear logs for second test
 	result2, err := service.ProcessRequest(key)
 	if err != nil {
 		t.Errorf("Second ProcessRequest() error = %v", err)
