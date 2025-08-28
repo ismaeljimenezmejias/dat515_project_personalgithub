@@ -15,6 +15,7 @@
 - [Go Resources](#go-resources)
   - [Primary Resources](#primary-resources)
   - [Additional Resources](#additional-resources)
+  - [Important Troubleshooting Note](#important-troubleshooting-note)
   - [Using Coding Models](#using-coding-models)
 - [Tasks](#tasks)
   - [Task 1: Exercises from Tour of Go](#task-1-exercises-from-tour-of-go)
@@ -53,6 +54,29 @@ Below we provide some resources which will be useful when you start programming 
 
 **Troubleshooting tip:**
 When searching for information about Go, use the term _golang_ instead of go.
+
+### Important Troubleshooting Note
+
+When working with Go you should (normally) only have a single `go.mod` file per repository.
+We already have one such file in the root of the repository, and you should not add another one.
+This is because it can confuse the Go compiler, resulting in error messages that are difficult to diagnose.
+For example, the following error message was caused by an extra `go.mod` file in the `2go` folder:
+
+```text
+questions/go_questions_qf_test.go:6:2: package dat515/internal/test is not in std (/usr/local/go/src/dat515/internal/test)
+FAIL dat515-2025/questions [setup failed]
+```
+
+You can use the command below to check for unnecessary `go.mod` files:
+
+```sh
+$ cd <username-labs>
+$ find . -name go.mod
+./go.mod
+./4docker/3-dockerfile/task4/go.mod
+```
+
+The file in `4docker` should not cause problems because it is specific to that folder.
 
 ### Using Coding Models
 
