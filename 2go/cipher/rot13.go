@@ -30,19 +30,19 @@ type rot13Reader struct {
 }
 
 func (r rot13Reader) Read(p []byte) (n int, err error) {
-    // Leer del Reader interno
-    n, err = r.r.Read(p) //el primer r corresponder a rot12Reader, el segundo r al reader de esa funcion
-    if n > 0 {
-        // Transformar los bytes en ROT13
-        for i := 0; i < n; i++ {
-            c := p[i]
-            switch {
-            case 'A' <= c && c <= 'Z':
-                p[i] = 'A' + (c-'A'+13)%26
-            case 'a' <= c && c <= 'z':
-                p[i] = 'a' + (c-'a'+13)%26
-            }
-        }
-    }
-    return n, err
+	// Leer del Reader interno
+	n, err = r.r.Read(p) //el primer r corresponder a rot12Reader, el segundo r al reader de esa funcion
+	if n > 0 {
+		// Transformar los bytes en ROT13
+		for i := 0; i < n; i++ {
+			c := p[i]
+			switch {
+			case 'A' <= c && c <= 'Z':
+				p[i] = 'A' + (c-'A'+13)%26
+			case 'a' <= c && c <= 'z':
+				p[i] = 'a' + (c-'a'+13)%26
+			}
+		}
+	}
+	return n, err
 }

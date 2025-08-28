@@ -77,8 +77,8 @@ func RateLimitedProcessor(items []int, rateLimit int) []int {
 
 	for i, val := range items {
 		go func(idx, v int) {
-			sem <- struct{}{}           // bloquear
-			defer func() { <-sem }()    // liberar
+			sem <- struct{}{}        // bloquear
+			defer func() { <-sem }() // liberar
 			defer wg.Done()
 			results[idx] = v * 2
 		}(i, val)

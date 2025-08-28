@@ -1,5 +1,3 @@
-
-
 // Task:
 //
 // Run the TestKeys and TestValues tests:
@@ -32,7 +30,6 @@ import (
 
 // keys returns the keys of a map x as a slice of strings, sorted alphabetically.
 func keys(x map[string]int) []string {
-	
 	return slices.Sorted(maps.Keys(x))
 }
 

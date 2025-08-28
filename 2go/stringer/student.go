@@ -27,7 +27,7 @@ should be printed as
 
 // Student holds information about a student.
 
-import "fmt"  
+import "fmt"
 
 type Student struct {
 	ID        int

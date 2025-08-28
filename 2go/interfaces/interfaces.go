@@ -154,23 +154,23 @@ func (c *CompositeCloudService) Log(message string) error {
 
 // ProcessRequest
 func (c *CompositeCloudService) ProcessRequest(key string) ([]byte, error) {
-    c.Log("Processing request: " + key)
+	c.Log("Processing request: " + key)
 
-    val, err := c.cache.Get(key)
-    if err == nil {
-        c.Log("Cache hit: " + key)
-        return val, nil
-    }
+	val, err := c.cache.Get(key)
+	if err == nil {
+		c.Log("Cache hit: " + key)
+		return val, nil
+	}
 
-    c.Log("Cache miss: " + key) // <--- este log faltaba
+	c.Log("Cache miss: " + key) // <--- este log faltaba
 
-    val, err = c.storage.Retrieve(key)
-    if err != nil {
-        return nil, err
-    }
+	val, err = c.storage.Retrieve(key)
+	if err != nil {
+		return nil, err
+	}
 
-    c.cache.Set(key, val)
-    c.Log("Request completed: " + key)
+	c.cache.Set(key, val)
+	c.Log("Request completed: " + key)
 
-    return val, nil
+	return val, nil
 }
