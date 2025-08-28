@@ -20,6 +20,7 @@ type Logger interface {
 	Log(message string) error
 }
 
+// Composite interface
 type CloudService interface {
 	Storage
 	Cache
@@ -88,86 +89,88 @@ func (c *MemoryCache) Clear(key string) error {
 // --- SimpleLogger ---
 
 type SimpleLogger struct {
-	Logs []string
+	logs []string
 }
 
 func NewSimpleLogger() *SimpleLogger {
-	return &SimpleLogger{Logs: []string{}}
+	return &SimpleLogger{logs: []string{}}
 }
 
 func (s *SimpleLogger) Log(message string) error {
-	s.Logs = append(s.Logs, message)
+	s.logs = append(s.logs, message)
 	return nil
 }
 
 func (s *SimpleLogger) GetLogs() []string {
-	return s.Logs
+	return s.logs
 }
 
 // --- CompositeCloudService ---
 
 type CompositeCloudService struct {
-	Storage Storage
-	Cache   Cache
-	Logger  Logger
+	storage Storage
+	cache   Cache
+	logger  *SimpleLogger
 }
 
 func NewCompositeCloudService(storage Storage, cache Cache, logger Logger) *CompositeCloudService {
 	return &CompositeCloudService{
-		Storage: storage,
-		Cache:   cache,
-		Logger:  logger,
+		storage: storage,
+		cache:   cache,
+		logger:  logger.(*SimpleLogger),
 	}
 }
 
-// Storage methods
+// Storage
 func (c *CompositeCloudService) Store(key string, value []byte) error {
-	return c.Storage.Store(key, value)
+	return c.storage.Store(key, value)
 }
 
 func (c *CompositeCloudService) Retrieve(key string) ([]byte, error) {
-	return c.Storage.Retrieve(key)
+	return c.storage.Retrieve(key)
 }
 
 func (c *CompositeCloudService) Delete(key string) error {
-	return c.Storage.Delete(key)
+	return c.storage.Delete(key)
 }
 
-// Cache methods
+// Cache
 func (c *CompositeCloudService) Set(key string, value []byte) error {
-	return c.Cache.Set(key, value)
+	return c.cache.Set(key, value)
 }
 
 func (c *CompositeCloudService) Get(key string) ([]byte, error) {
-	return c.Cache.Get(key)
+	return c.cache.Get(key)
 }
 
 func (c *CompositeCloudService) Clear(key string) error {
-	return c.Cache.Clear(key)
+	return c.cache.Clear(key)
 }
 
-// Logger method
+// Logger
 func (c *CompositeCloudService) Log(message string) error {
-	return c.Logger.Log(message)
+	return c.logger.Log(message)
 }
 
-// ProcessRequest: uses logger, cache, and storage
+// ProcessRequest
 func (c *CompositeCloudService) ProcessRequest(key string) ([]byte, error) {
-	c.Log("Processing request: " + key)
-	c.Log("Checking cache for key: " + key)
+    c.Log("Processing request: " + key)
 
-	val, err := c.Cache.Get(key)
-	if err == nil {
-		c.Log("Cache hit: " + key)
-		return val, nil
-	}
+    val, err := c.cache.Get(key)
+    if err == nil {
+        c.Log("Cache hit: " + key)
+        return val, nil
+    }
 
-	val, err = c.Storage.Retrieve(key)
-	if err != nil {
-		return nil, err
-	}
+    c.Log("Cache miss: " + key) // <--- este log faltaba
 
-	c.Cache.Set(key, val)
-	c.Log("Request completed: " + key)
-	return val, nil
+    val, err = c.storage.Retrieve(key)
+    if err != nil {
+        return nil, err
+    }
+
+    c.cache.Set(key, val)
+    c.Log("Request completed: " + key)
+
+    return val, nil
 }
