@@ -13,7 +13,11 @@ func testMultiWriter(t *testing.T, scoreDec func()) {
 	for _, test := range multiWriterTests {
 		n, errs := WriteTo(test.inb, test.inw...)
 		if !cmp.Equal(n, test.wantN) {
-			t.Errorf("WriteTo(%q, writers...) = %v, want %v", test.inb, n, test.wantN)
+			if n == nil {
+				t.Errorf("WriteTo(%q, writers...) = nil, want %v", test.inb, test.wantN)
+			} else {
+				t.Errorf("WriteTo(%q, writers...) = %v, want %v", test.inb, n, test.wantN)
+			}
 			scoreDec()
 			continue
 		}
