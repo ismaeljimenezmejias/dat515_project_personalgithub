@@ -40,7 +40,7 @@ To take this option, proceed to [Part 2: Docker Basics](../2-basics/README.md) t
 
 1. **Login to UiS's OpenStack**
 
-   Login to [cloud.cs.ux.uis.no/horizon](https://cloud.cs.ux.uis.no/horizon) using the details provided to your group.
+   Login to [cloud.cs.ux.uis.no/horizon](https://cloud.cs.ux.uis.no/horizon) using your GitHub username as both the username and password.
 
 2. **Network**
 
