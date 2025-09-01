@@ -127,6 +127,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Advanced Application**
 
+   Create the application structure and copy the necessary files:
+
    ```console
    mkdir webapp-stack
    cd webapp-stack
@@ -135,7 +137,11 @@ By the end of this lab, you will be able to:
    cp ../app.py ../requirements.txt ../Dockerfile ../docker-compose.yml ../init.sql ../nginx.conf .
    ```
 
-3. **Run and Test the Advanced Stack**
+3. **Complete the TODO Items for Task 2**
+
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+
+4. **Run and Test the Advanced Stack**
 
    ```console
    # Build and start all services
@@ -150,7 +156,7 @@ By the end of this lab, you will be able to:
 
    **Note:** The application is configured to use port 5001 (instead of the more common 5000) to avoid conflicts with macOS AirPlay Receiver, which uses port 5000 by default. This ensures the stack works out-of-the-box on all platforms.
 
-4. **Test the Application**
+5. **Test the Application**
 
    ```console
    # Test main endpoint
@@ -177,7 +183,7 @@ By the end of this lab, you will be able to:
 
    **Note:** All requests go through nginx on port 8080. You can also access the app directly on `localhost:5001`.
 
-5. **Stop the Stack**
+6. **Stop the Stack**
 
    ```console
    # Stop and remove all containers
@@ -201,6 +207,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Environment-Specific Setup**
 
+   Create the environment-specific structure and copy the necessary files:
+
    ```console
    mkdir environment-demo
    cd environment-demo
@@ -214,7 +222,11 @@ By the end of this lab, you will be able to:
    cp ../../task3/docker-compose.*.yml .
    ```
 
-3. **Test Different Environments**
+3. **Complete the TODO Items for Task 2**
+
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+
+4. **Test Different Environments**
 
    ```console
    # Start with development configuration
@@ -275,6 +287,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Monitoring Setup**
 
+   Create the application structure and copy the necessary files:
+
    ```console
    mkdir monitoring
    cd monitoring
@@ -283,7 +297,11 @@ By the end of this lab, you will be able to:
    cp ../task4/docker-compose.debug.yml ../task4/docker-compose.monitoring.yml ../task4/prometheus.yml .
    ```
 
-3. **Start Monitoring Services**
+3. **Complete the TODO Items for Task 2**
+
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+
+4. **Start Monitoring Services**
 
    ```console
    # Start the monitoring stack
@@ -296,7 +314,7 @@ By the end of this lab, you will be able to:
    # Access Grafana (http://localhost:3000 - admin/admin)
    ```
 
-4. **Start Debug Environment**
+5. **Start Debug Environment**
 
    ```console
    # Start debug tools
@@ -328,6 +346,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Production Setup**
 
+   Create the application structure and copy the necessary files:
+
    ```console
    # Create new directory for production
    mkdir production-stack
@@ -340,7 +360,11 @@ By the end of this lab, you will be able to:
    chmod 600 secrets/*.txt
    ```
 
-3. **Deploy Production Stack**
+3. **Complete the TODO Items for Task 2**
+
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+
+4. **Deploy Production Stack**
 
    ```console
    # Set environment variables for production

@@ -8,10 +8,10 @@
 - [Task 2 - Dockerfile Instructions Deep Dive](#task-2---dockerfile-instructions-deep-dive)
 - [Task 3 - Best Practices and Optimization](#task-3---best-practices-and-optimization)
 - [Task 4 - Multi-Stage Builds](#task-4---multi-stage-builds)
-- [Task 5 - Security Best Practices](#task-5---security-best-practices)
 - [Task 5 - Building for Production](#task-5---building-for-production)
-- [Task 6 - Image Registry Operations](#task-6---image-registry-operations)
-- [Task 7 - Cleanup and Review](#task-7---cleanup-and-review)
+- [Task 6 - Security Best Practices](#task-6---security-best-practices)
+- [Task 7 - Image Registry Operations](#task-7---image-registry-operations)
+- [Task 8 - Cleanup and Review](#task-8---cleanup-and-review)
 - [Verification Checklist](#verification-checklist)
 - [QuickFeed Checks](#quickfeed-checks)
 - [Next Steps](#next-steps)
@@ -43,6 +43,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Project Structure**
 
+   Create the project structure and copy the necessary files:
+
    ```console
    mkdir my-web-app
    cd my-web-app
@@ -53,7 +55,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 1**
 
-   Review the Dockerfile and complete the TODO items.
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
 
 4. **Build and View Your Image**
 
@@ -84,6 +86,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Advanced Application**
 
+   Create the application structure and copy the necessary files:
+
    ```console
    mkdir advanced-app
    cd advanced-app
@@ -93,7 +97,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and complete the TODO items.
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
 
 4. **Build and Run Advanced App**
 
@@ -127,6 +131,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Optimized Application**
 
+   Create the application structure and copy the necessary files:
+
    ```console
    mkdir optimized-app
    cd optimized-app
@@ -135,7 +141,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 3**
 
-   Review the Dockerfile and complete the TODO items.
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
 
 4. **Compare and Analyze Image Sizes and Layers**
 
@@ -170,6 +176,8 @@ By the end of this lab, you will be able to:
 
 2. **Create Multi-Stage Application**
 
+   Create the application structure and copy the necessary files:
+
    ```console
    mkdir go-app
    cd go-app
@@ -178,7 +186,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 4**
 
-   Review the Dockerfile and complete the TODO items.
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
 
 4. **Build and Compare Multi-Stage Image**
 
@@ -197,7 +205,45 @@ By the end of this lab, you will be able to:
    curl localhost:8003/health
    ```
 
-## Task 5 - Security Best Practices
+## Task 5 - Building for Production
+
+1. **Examine the Task 5 Files**
+
+   ```console
+   cd ../../task5
+   cat Dockerfile
+   cat index.html
+   ```
+
+2. **Create Production App**
+
+   Create the project structure and copy the necessary files:
+
+   ```console
+   mkdir production-app
+   cd production-app
+   cp ../index.html ../Dockerfile .
+   ```
+
+3. **Complete the TODO Items for Task 5**
+
+   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+
+4. **Build and Inspect Labels**
+
+   ```console
+   # Build with build arguments
+   docker build \
+     --build-arg APP_VERSION=2.0 \
+     --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+     --build-arg VCS_REF=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") \
+     -t production-app:2.0 .
+
+   # Inspect the labels
+   docker inspect production-app:2.0 | grep -A 10 '"Labels"'
+   ```
+
+## Task 6 - Security Best Practices
 
 1. **Scan Images for Vulnerabilities**
 
@@ -221,43 +267,7 @@ By the end of this lab, you will be able to:
    - Using multi-stage builds to reduce final image size
    - Scanning for vulnerabilities
 
-## Task 5 - Building for Production
-
-1. **Examine the Task 5 Files**
-
-   ```console
-   cd ../../task5
-   cat Dockerfile
-   cat index.html
-   ```
-
-2. **Create Production App**
-
-   ```console
-   mkdir production-app
-   cd production-app
-   cp ../index.html ../Dockerfile .
-   ```
-
-3. **Complete the TODO Items for Task 5**
-
-   Review the Dockerfile and complete the TODO items.
-
-4. **Build and Inspect Labels**
-
-   ```console
-   # Build with build arguments
-   docker build \
-     --build-arg APP_VERSION=2.0 \
-     --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-     --build-arg VCS_REF=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") \
-     -t production-app:2.0 .
-
-   # Inspect the labels
-   docker inspect production-app:2.0 | grep -A 10 '"Labels"'
-   ```
-
-## Task 6 - Image Registry Operations
+## Task 7 - Image Registry Operations
 
 1. **Practice Tagging Images and Versioning**
 
@@ -275,7 +285,7 @@ By the end of this lab, you will be able to:
    docker tag go-app:multistage go-app:latest
    ```
 
-## Task 7 - Cleanup and Review
+## Task 8 - Cleanup and Review
 
 1. **Clean Up Your Environment**
 
