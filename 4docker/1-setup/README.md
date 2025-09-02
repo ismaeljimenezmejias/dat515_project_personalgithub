@@ -102,12 +102,45 @@ To take this option, proceed to [Part 2: Docker Basics](../2-basics/README.md) t
 
 7. **Connect via SSH**
 
-   - You can now SSH to the VM using the floating IP and private key
-   - **Note:** This step requires UiS campus network access
+   **Important Network Requirements:**
+
+   - **Direct Connection (UiS Campus Network Required):** If you are physically on campus , you can connect directly to your VM's floating IP
+   - **Remote Connection (Use Jump VM):** If you are off-campus, you must use the provided jump VM to access your instance
+
+   **Option A - Direct Connection (On UiS Campus Network):**
 
    ```console
    ssh ubuntu@floating_ip -i ssh_key
    ```
+
+   **Option B - Remote Connection via Jump VM (Off-Campus):**
+
+   First, connect to the jump VM:
+
+   ```console
+   ssh github_username@sshvm.cs.ux.uis.no
+   ```
+
+   Then from the jump VM, connect to your instance using private ip:
+
+   ```console
+   ssh ubuntu@private_ip -i ssh_key
+   ```
+
+   **Alternative - SSH Tunneling (Advanced):**
+
+   You can also set up SSH tunneling through the jump host:
+
+   ```console
+   ssh -J github_username@sshvm.cs.ux.uis.no ubuntu@floating_ip -i ssh_key
+   ```
+
+   **Network Access Summary:**
+
+   - **On UiS Campus:** Direct connection to floating IP works
+   - **Off-Campus :** Must use jump VM or SSH tunneling
+
+   **Note:** The floating IP is only accessible from UiS network ranges. External access requires going through the jump host.
 
 ## Task 2 - Install Docker on Ubuntu
 

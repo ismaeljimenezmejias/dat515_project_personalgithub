@@ -139,7 +139,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`.
 
 4. **Run and Test the Advanced Stack**
 
@@ -224,7 +224,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`.
 
 4. **Test Different Environments**
 
@@ -299,7 +299,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`.
 
 4. **Start Monitoring Services**
 
@@ -362,7 +362,7 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and complete the TODO items in the `Dockerfile`.
+   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`.
 
 4. **Deploy Production Stack**
 
