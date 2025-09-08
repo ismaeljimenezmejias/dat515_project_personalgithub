@@ -1,6 +1,6 @@
-# Lab 6: Course Project
+# Lab 7: Course Project
 
-| Lab 6:      | Course Project              |
+| Lab 7:      | Course Project              |
 | ----------- | --------------------------- |
 | Subject:    | DAT515 Cloud Computing      |
 | Deadline:   | **November 14, 2025 23:59** |
@@ -15,6 +15,7 @@
   - [2. Codebase](#2-codebase)
   - [3. Reproducibility Report (report.md)](#3-reproducibility-report-reportmd)
   - [4. Presentation Video](#4-presentation-video)
+  - [5. Q\&A Session](#5-qa-session)
 - [Project Selection Guidelines](#project-selection-guidelines)
   - [Specific Project Ideas](#specific-project-ideas)
 
@@ -23,9 +24,11 @@ You are free to choose any cloud computing technology or service to work with, t
 
 ## Project Deliverables
 
-Your project submission consists of four main deliverables:
+Your project submission consists of five main deliverables:
 
 ### 1. Design Document (design.md)
+
+Deadline: **September 19, 2025**
 
 You are required to prepare a design document for your application.
 The design doc should be brief, well-organized and easy to understand.
@@ -165,6 +168,12 @@ The presentation video **must include** the following components:
   - Consider using AI tools for audio enhancement or voice generation if needed
   - Ensure good audio quality - use a decent microphone
 
+### 5. Q&A Session
+
+- Criteria review against the checklist
+- Each team member presents their work and receives feedback
+- (More details about the format may be added later)
+
 ## Project Selection Guidelines
 
 Your next step is to choose a project you want to pursue and describe its design in the design document, as [outlined above](#1-design-document-designmd).
@@ -226,6 +235,8 @@ The responsible staff member names listed below are only tentative, and will be 
 
    To scale QuickFeed, this project will implement deployment of the containers to a Kubernetes cluster with appropriate scheduling and task management.
    For this project, the Kubernetes cluster can be run locally on our OpenStack cluster machines.
+
+   You may also consider doing this project using a serverless framework from one of the cloud providers.
 
    **Core Goals (Required):**
    - Set up local UiS Kubernetes cluster for development
