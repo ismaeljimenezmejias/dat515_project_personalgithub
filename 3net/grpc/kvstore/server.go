@@ -2,6 +2,8 @@ package kvstore
 
 import (
 	"context"
+	"sort"
+	"sync"
 
 	pb "dat515/3net/grpc/proto"
 
@@ -9,47 +11,70 @@ import (
 )
 
 type keyValueServicesServer struct {
-	// TODO(student): Add fields if needed
+	mu sync.RWMutex
 	kv map[string]string
-	// this must be included in implementers of the pb.KeyValueServicesServer interface
+	// este campo es requerido por la interfaz generada de gRPC
 	pb.UnimplementedKeyValueServiceServer
 }
 
-// NewKeyValueServicesServer returns an initialized KeyValueServicesServer
+// NewKeyValueServicesServer crea un servidor con el mapa inicializado.
 func NewKeyValueServicesServer() *keyValueServicesServer {
 	return &keyValueServicesServer{
 		kv: make(map[string]string),
 	}
 }
 
-// Insert inserts a key-value pair from the request into the server's map, and
-// returns a response to the client indicating whether or not the insert was successful.
+// Insert intenta insertar una nueva (key,value).
+// Si la key ya existe, NO la pisa y devuelve success=false.
+// Si no existe, la crea y success=true.
 func (s *keyValueServicesServer) Insert(ctx context.Context, req *pb.InsertRequest) (*pb.InsertResponse, error) {
-	s.kv[req.GetKey()] = req.GetValue()
+	key := req.GetKey()
+	val := req.GetValue()
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, exists := s.kv[key]; exists {
+		resp := pb.InsertResponse_builder{
+			Success: proto.Bool(false),
+		}
+		return resp.Build(), nil
+	}
+
+	s.kv[key] = val
 	resp := pb.InsertResponse_builder{
 		Success: proto.Bool(true),
 	}
 	return resp.Build(), nil
 }
 
-// Lookup returns a response to containing the value corresponding to the request's key.
-// If the key is not found, the response's value is empty.
+// Lookup devuelve el valor asociado a la key; si no existe, devuelve "".
 func (s *keyValueServicesServer) Lookup(ctx context.Context, req *pb.LookupRequest) (*pb.LookupResponse, error) {
-	// TODO(student): Implement function Lookup
+	key := req.GetKey()
 
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	val := s.kv[key] // devuelve "" si no existe
 	resp := pb.LookupResponse_builder{
-		Value: proto.String("Initial value"),
+		Value: proto.String(val),
 	}
 	return resp.Build(), nil
 }
 
-// Keys returns a response to containing a slice of all the keys in the server's map.
-// The returned slice is sorted.
+// Keys devuelve todas las keys ordenadas alfabéticamente.
 func (s *keyValueServicesServer) Keys(ctx context.Context, req *pb.KeysRequest) (*pb.KeysResponse, error) {
-	// TODO(student): Implement function Keys
+	s.mu.RLock()
+	keys := make([]string, 0, len(s.kv))
+	for k := range s.kv {
+		keys = append(keys, k)
+	}
+	s.mu.RUnlock()
+
+	sort.Strings(keys)
 
 	resp := pb.KeysResponse_builder{
-		Keys: []string{"Initial", "value"},
+		Keys: keys,
 	}
 	return resp.Build(), nil
 }
