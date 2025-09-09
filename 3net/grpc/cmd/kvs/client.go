@@ -14,7 +14,7 @@ import (
 
 func client(n int, endpoint string) {
 	// 1. Conectar con el servidor gRPC
-	conn, err := grpc.Dial(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials())) //antes era grpc.Dial pero daba warning
 	if err != nil {
 		log.Fatalf("No se pudo conectar a %s: %v", endpoint, err)
 	}

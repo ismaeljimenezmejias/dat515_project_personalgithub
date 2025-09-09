@@ -26,7 +26,7 @@ func NewServer() *Server {
 
 // ServeHTTP implementa el http.Handler interface
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
+
 	s.mu.Lock()
 	s.counter++
 	count := s.counter
