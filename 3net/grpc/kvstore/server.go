@@ -32,20 +32,10 @@ func (s *keyValueServicesServer) Insert(ctx context.Context, req *pb.InsertReque
 	val := req.GetValue()
 
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.kv[key] = val // overwrite SIEMPRE
+	s.mu.Unlock()
 
-	if _, exists := s.kv[key]; exists {
-		resp := pb.InsertResponse_builder{
-			Success: proto.Bool(false),
-		}
-		return resp.Build(), nil
-	}
-
-	s.kv[key] = val
-	resp := pb.InsertResponse_builder{
-		Success: proto.Bool(true),
-	}
-	return resp.Build(), nil
+	return &pb.InsertResponse{Success: true}, nil
 }
 
 // Lookup devuelve el valor asociado a la key; si no existe, devuelve "".
