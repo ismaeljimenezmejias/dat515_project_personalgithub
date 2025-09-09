@@ -13,7 +13,7 @@
 - **Duration:** ~90 minutes
 - **Prerequisites:** Completed Part 5.
 
-Convert your Lab 4 deployment into a Kubernetes deployment, you may compose your own service, deployment manifests as needed.
+Convert onf of the tasks from Lab 4 deployment into a Kubernetes deployment, you may compose your own service, deployment manifests as needed.
 Use the docker images you used previously when creating the pods/deployments.
 Additionally, include health checks into your deployment.
 
