@@ -7,7 +7,7 @@ No other changes to the text should be made.
 
 1. Which best describes TCP?
 
-   - [ ] a) Reliable, connection-oriented
+   - [x] a) Reliable, connection-oriented
    - [ ] b) Reliable, connection-less
    - [ ] c) Unreliable, connection-oriented
    - [ ] d) Unreliable, connection-less
@@ -17,25 +17,25 @@ No other changes to the text should be made.
    - [ ] a) IPAddr has variable IP.
    - [ ] b) TCPAddr has variable IP.
    - [ ] c) IPAddr has variable port.
-   - [ ] d) TCPAddr has variable port.
+   - [x] d) TCPAddr has variable port.
 
 3. Which IP address:port is **invalid**?
 
    - [ ] a) 152.94.1.128:65535
    - [ ] b) 152.94.0.128:12110
-   - [ ] c) 152.94.1.256:12110
+   - [x] c) 152.94.1.256:12110
    - [ ] d) 152.94.1.128:12110
 
 4. Which is **not** true concerning Protocol Buffers?
 
    - [ ] a) It is a mechanism for serializing structured data.
-   - [ ] b) It can generate `.proto` files from the source code.
+   - [x] b) It can generate `.proto` files from the source code.
    - [ ] c) A protocol buffer compiler is used to generate code.
    - [ ] d) It provides a data interchange format.
 
 5. Which is a valid RPC declaration in Go? This is from the `net/rpc` package, not gRPC.
 
-   - [ ] a) `func (t *TypeName) MethodName(args *Args, reply \*int) error`
+   - [x] a) `func (t *TypeName) MethodName(args *Args, reply \*int) error`
    - [ ] b) `func (t *TypeName) MethodName(args *Args) (reply \*int, error)`
    - [ ] c) `func (t *TypeName) MethodName(args *Args) reply \*int`
    - [ ] d) `func (t *TypeName) MethodName(args *Args, reply \*int)`
