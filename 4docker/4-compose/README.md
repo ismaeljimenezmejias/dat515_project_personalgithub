@@ -294,12 +294,18 @@ By the end of this lab, you will be able to:
    cd monitoring
 
    # Copy the monitoring files
-   cp ../task4/docker-compose.debug.yml ../task4/docker-compose.monitoring.yml ../task4/prometheus.yml .
+   cp ../docker-compose.debug.yml ../docker-compose.monitoring.yml ../prometheus.yml .
    ```
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`.
+   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`. Copy the necessary files from Task 2:
+
+   ```console
+   # Copy base configuration from Task 2
+   cp ../task2/docker-compose.yml ./docker-compose.yml
+   cp ../task2/app.py ../task2/requirements.txt ../task2/Dockerfile ../task2/init.sql .
+   ```
 
 4. **Start Monitoring Services**
 
@@ -362,7 +368,18 @@ By the end of this lab, you will be able to:
 
 3. **Complete the TODO Items for Task 2**
 
-   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`.
+   Review the Dockerfile and docker-compose.yml and complete the TODO items in the `docker-compose.yml`. Copy the necessary files from Task 2:
+
+   ```console
+   # Copy base configuration from Task 2
+   cp ../task2/docker-compose.yml ./docker-compose.yml
+   cp ../task2/app.py ../task2/requirements.txt ../task2/Dockerfile ../task2/init.sql .
+
+   # Create ngnix config folder and copy nginx.conf
+   mkdir -p nginx
+   cd nginx
+   cp ../../task2/nginx.conf .
+   ```
 
 4. **Deploy Production Stack**
 
