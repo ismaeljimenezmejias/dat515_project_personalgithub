@@ -12,7 +12,7 @@
 
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
-- [Lab 2 Assignments](#lab-2-assignments)
+- [Assignments](#assignments)
 
 ## Introduction
 
@@ -27,7 +27,7 @@ Finally, the last part involves answering networking questions and demonstrating
 
 It is recommended that you actively use the documentation available for this package during your work on this lab assignment.
 
-## Lab 2 Assignments
+## Assignments
 
 - [Web Server](web/README.md)
 - [GRPC Server](grpc/README.md)

@@ -24,4 +24,4 @@ clean:
 	@rm -vf proto/*.pb.go ./kvs
 
 gitignore:
-	@grep -q "lab2/grpc/kvs" ../../.gitignore || echo "lab2/grpc/kvs" >> ../../.gitignore
+	@grep -q "3net/grpc/kvs" ../../.gitignore || echo "3net/grpc/kvs" >> ../../.gitignore

@@ -11,6 +11,7 @@
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
+- [IMPORTANT: Do not make commits to your GitHub repository before reading this](#important-do-not-make-commits-to-your-github-repository-before-reading-this)
 - [Introduction](#introduction)
 - [Get Access to OpenStack VM](#get-access-to-openstack-vm)
   - [Task: Add Your SSH Public Key to Your GitHub Repository](#task-add-your-ssh-public-key-to-your-github-repository)
@@ -24,6 +25,15 @@
 - [Configuring SSH for Passwordless Login](#configuring-ssh-for-passwordless-login)
   - [Task: Setting Up SSH Keys for Passwordless GitHub Authentication](#task-setting-up-ssh-keys-for-passwordless-github-authentication)
 - [Cloning Your Assignments Repository and Submitting to QuickFeed](#cloning-your-assignments-repository-and-submitting-to-quickfeed)
+
+## IMPORTANT: Do not make commits to your GitHub repository before reading this
+
+Before you start working on the lab assignments, please read the [lab submission instructions](https://github.com/dat515-2025/info/blob/main/lab-submission.md).
+It contains important information about the cloning process and how to bring the assignments into your own repository.
+
+> If you already made this mistake, you can still fix it without losing your work.
+> Please consult the [troubleshooting guide](https://github.com/dat515-2025/info/blob/main/troubleshooting.md#git-and-repository-issues).
+> If you still need help, please contact the teaching staff on Discord or during lab hours.
 
 ## Introduction
 

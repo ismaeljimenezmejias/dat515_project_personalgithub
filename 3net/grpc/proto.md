@@ -21,6 +21,18 @@ On macOS, if you have installed homebrew, you can simply run:
 brew install protobuf
 ```
 
+On Windows with Anaconda package manager, you may use the following command:
+
+```shell
+conda install conda-forge::protobuf
+```
+
+If you already installed protobuf using Anaconda, you should make sure to upgrade it:
+
+```shell
+conda update --all
+```
+
 If you do not use a package manager with your OS, you should download the appropriate package from the [official release page of the Protobuf compiler](https://github.com/protocolbuffers/protobuf/releases).
 
 Once you have installed the make sure to test that the installation is working by running:
