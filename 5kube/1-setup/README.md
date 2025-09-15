@@ -70,15 +70,24 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
    Login to [cloud.cs.ux.uis.no/horizon](https://cloud.cs.ux.uis.no/horizon) using the details provided to your group.
 
-2. Navigate to Compute → Instances
-3. Click "Launch Instance"
-4. Configure the following:
+2. **Manage Security Group Rules:**
+
+   - Navigate to `Project->Network->Security Groups`
+   - Select Manage Rules, and click `+ Add Rule`
+   - Select Custome TCP from the Rule dropdown menu and select port 50000
+   - In the CIDR field, enter the IP address from where you want to connect
+     For example, to grant access to the private network: `172.16.0.0/16`
+   - Click Add
+
+3. Navigate to Compute → Instances
+4. Click "Launch Instance"
+5. Configure the following:
    - **Instance Name**: `talos-master` (for control plane)
    - **Source**: Select Talos Linux image (talos 1.10.4)
    - **Flavor**: `m1.large`
    - **Networks**: Select your project network `dat515-network`
    - **Security Groups**: Default (ensure SSH and custom ports are allowed)
-5. Repeat for worker nodes: `talos-worker1`, `talos-worker2`
+6. Repeat for worker nodes: `talos-worker1`, `talos-worker2`
    - **Flavor**: `m1.medium`
 
 ### Note VM IP Addresses
