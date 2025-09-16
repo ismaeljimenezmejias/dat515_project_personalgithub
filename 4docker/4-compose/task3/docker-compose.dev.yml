@@ -3,7 +3,7 @@ services:
     build: .
     ports:
       - "5001:5000" # Direct access for debugging (using 5001 to avoid port conflicts)
-    volumes:
+    volumes: 
       - .:/app
     environment:
       - FLASK_ENV=development
@@ -12,7 +12,9 @@ services:
   database:
     ports:
       # TODO: Expose database on port 3306
+      - "3306:3306"
 
   cache:
     ports:
       # TODO: Expose Redis for debugging on port 6379
+      - "6379:6379"
