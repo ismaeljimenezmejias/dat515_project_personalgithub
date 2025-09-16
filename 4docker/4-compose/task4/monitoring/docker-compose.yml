@@ -4,9 +4,9 @@ services:
     build: .
     environment:
       - DB_HOST=database
-      - DB_USER=webuser
-      - DB_PASSWORD=webpass
-      - DB_NAME=webapp
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_NAME=${MYSQL_DATABASE}
       - REDIS_HOST=cache
     depends_on:
       database:
@@ -23,10 +23,10 @@ services:
     environment:
       # TODO: Set the database credentials
       # These should match the environment variables in the app service
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: webapp
-      MYSQL_USER: webuser
-      MYSQL_PASSWORD: webpass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
