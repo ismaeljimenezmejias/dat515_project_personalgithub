@@ -18,7 +18,7 @@ services:
     ports:
       # TODO: Forward the port from docker to the host
       # Adminer uses port 8080 by default
-      - "8080:8080"
+      - "8081:8080"
     environment:
       ADMINER_DEFAULT_SERVER: database
 
@@ -26,6 +26,6 @@ services:
     image: rediscommander/redis-commander:latest
     ports:
       # TODO: Forward the redis-commander port 8081 to the host
-      - "8081:8081"
+      - "8082:8081"
     environment:
       REDIS_HOSTS: local:cache:6379
