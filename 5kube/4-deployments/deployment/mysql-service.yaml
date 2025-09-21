@@ -4,12 +4,9 @@ metadata:
   name: mysql
 spec:
   selector:
-    # TODO: Define selector to match MySQL deployment (must match deployment labels)
     app: mysql
   ports:
-    # TODO: Configure MySQL service port
     - protocol: TCP
       port: 3306      # MySQL service port (use 3306)
       targetPort: 3306 # MySQL container port (use 3306)
-  # TODO: Set clusterIP type (use 'None' for headless service)
   clusterIP: None

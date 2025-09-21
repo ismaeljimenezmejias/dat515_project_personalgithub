@@ -5,13 +5,10 @@ metadata:
   labels:
     app: webapp
 spec:
-  # TODO: Define the service type (use NodePort for external access)
   type: NodePort
   selector:
-    # TODO: Define selector to match deployment pods (must match deployment labels)
     app: webapp
   ports:
-    # TODO: Complete the port configuration
     - protocol: TCP   # Protocol type (TCP for HTTP traffic)
       port: 80       # Port exposed by the service (try 80)
       targetPort: 80 # Port on the container (nginx uses 80)
