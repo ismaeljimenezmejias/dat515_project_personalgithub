@@ -61,7 +61,7 @@ flowchart LR
   svc2 --> ext[(External API)]
 ```
 
-
+```
 flowchart LR
   User[Client/User] --> Service_FE(K8s Service: Frontend)
   Service_FE --> Deployment_FE[Deployment: Nginx/Frontend]
@@ -70,7 +70,7 @@ flowchart LR
   Deployment_API --> Service_DB(K8s Service: Database)
   Service_DB --> StatefulSet_DB[StatefulSet: PostgreSQL]
   StatefulSet_DB --> PV(Persistent Volume Claim)
-
+```
 
 - Components and responsibilities: What does each box do?
 - Data flow: How does data move between components?
