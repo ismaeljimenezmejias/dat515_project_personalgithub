@@ -5,11 +5,11 @@
 
 | Field          | Value (fill in)              |
 | -------------- | ---------------------------- |
-| Project Name   |Group-19 |
+| Project Name   |19trymismabicicleta           |
 | Team Members   |Trym Falkum and Ismael Jimenez|
 | Repository URL |https://github.com/dat515-2025/Group-19|
 | Version        | v0.1 (update as you iterate) |
-| Last Updated   | YYYY-MM-DD                   |
+| Last Updated   | 2025/10/07                   |
 
 ## How to use this template
 
@@ -23,17 +23,33 @@
 
 Briefly describe the application and its purpose.
 
-- Problem statement: What problem are you solving?
-- Target users / personas: Who benefits from this?
-- Primary objectives: 3–5 bullet points.
-- Non-goals: What is explicitly out of scope?
-- Key features: Short bullet list of core functionality.
+1: Problem statement: What problem are you solving?
+The students need some way to move around, a bike is perfect for that.
+
+2: Target users / personas: Who benefits from this?
+Students from the university as well as bike selling companies trying to get known.
+Also exchange students can benefit most from this, as they can buy for one year and sell when they finish.
+
+3: Primary objectives: 3–5 bullet points.
+3.1- Let's students buy bikes online.
+3.2- Let's students sell bikes.
+3.3- Let's students rent bikes.
+
+4: Non-goals: What is explicitly out of scope?
+Built-in messaging interface: The application will not include a real-time, in-app chat or full messaging system. While buyers and sellers will be able to contact each other (e.g., via email links, external messaging apps, or simple contact forms), implementing a dedicated messaging interface inside the web application (with message history, live notifications, typing indicators, etc.) is out of scope for this project.
+
+
+5: Key features: Short bullet list of core functionality.
+- List of all the selling bikes
+- Buy button/rent button in each bike for students interested in buying/renting
+- Sell button/rent out button in the bottom of page for students interested in selling filters 
 
 ## 2. Architecture
 
 High-level architecture, main components, interactions, and data flow. Include a system diagram.
 
 ### 2.1 System diagram
+
 
 ```mermaid
 flowchart LR
@@ -44,6 +60,17 @@ flowchart LR
   svc2 --> cache[(Cache)]
   svc2 --> ext[(External API)]
 ```
+
+
+flowchart LR
+  User[Client/User] --> Service_FE(K8s Service: Frontend)
+  Service_FE --> Deployment_FE[Deployment: Nginx/Frontend]
+  Deployment_FE --> Service_API(K8s Service: API Backend)
+  Service_API --> Deployment_API[Deployment: API Service (Flask/Node)]
+  Deployment_API --> Service_DB(K8s Service: Database)
+  Service_DB --> StatefulSet_DB[StatefulSet: PostgreSQL]
+  StatefulSet_DB --> PV(Persistent Volume Claim)
+
 
 - Components and responsibilities: What does each box do?
 - Data flow: How does data move between components?
