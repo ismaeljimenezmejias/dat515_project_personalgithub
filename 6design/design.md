@@ -5,9 +5,9 @@
 
 | Field          | Value (fill in)              |
 | -------------- | ---------------------------- |
-| Project Name   |                              |
-| Team Members   |                              |
-| Repository URL |                              |
+| Project Name   |Group-19 |
+| Team Members   |Trym Falkum and Ismael Jimenez|
+| Repository URL |https://github.com/dat515-2025/Group-19|
 | Version        | v0.1 (update as you iterate) |
 | Last Updated   | YYYY-MM-DD                   |
 
