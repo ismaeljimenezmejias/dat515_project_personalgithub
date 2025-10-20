@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Campus Bikes Marketplace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; background: #f4f4f4; }
+    h1 { color: #333; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #eee; }
+    button { padding: 5px 10px; cursor: pointer; }
+    #newBikeForm { margin-top: 2rem; background: #fff; padding: 1rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>🚲 Campus Bikes Marketplace</h1>
+
+    <a href="/about" style="
+      display:inline-block;
+      margin-bottom: 1rem;
+      padding: 6px 12px;
+      background:#007bff;
+      color:white;
+      border-radius:4px;
+      text-decoration:none;
+    ">About</a>
+
+    <h1>🚲 Campus Bikes Marketplace</h1>
+
+  <a href="/publish" style="display:inline-block;margin-right:8px;padding:6px 10px;background:#28a745;color:white;border-radius:4px;text-decoration:none;">➕ Publish a bike</a>
+  <a href="/bikes" style="display:inline-block;margin-right:8px;padding:6px 10px;background:#17a2b8;color:white;border-radius:4px;text-decoration:none;">📋 View bikes</a>
+  <button onclick="loadBikes()">🔄 Refresh list</button>
+  <table id="bikeTable">
+    <thead>
+      <tr><th>ID</th><th>Title</th><th>Price (€)</th><th>Rentable</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Publish form moved to /publish -->
+
+  <script>
+    async function loadBikes() {
+  const res = await fetch('/api/bikes');
+      const data = await res.json();
+      const tbody = document.querySelector('#bikeTable tbody');
+      tbody.innerHTML = data.messages.map(bike => {
+        const title = bike.title || bike.content || 'Untitled';
+        const price = (bike.price !== null && bike.price !== undefined) ? Number(bike.price).toFixed(0) : '—';
+        const rentable = !!bike.rentable;
+
+        return `
+        <tr>
+          <td>${bike.id}</td>
+          <td>${title}</td>
+          <td>${price}</td>
+          <td>${rentable ? '✅' : '❌'}</td>
+          <td>
+            <button onclick="buy(${bike.id})">Buy</button>
+            <button onclick="rent(${bike.id})">Rent</button>
+          </td>
+        </tr>
+      `;
+      }).join('');
+    }
+
+    async function publishBike() {
+      const title = document.getElementById('title').value;
+      const price = document.getElementById('price').value;
+      const rentable = document.getElementById('rentable').checked;
+      if (!title || !title.trim()) return alert('Title is required');
+
+      const payload = { title: title.trim(), price: price ? Number(price) : 0, rentable };
+
+  await fetch('/api/bikes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: JSON.stringify(payload) })
+      });
+
+      document.getElementById('title').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('rentable').checked = false;
+      loadBikes();
+    }
+
+    async function buy(id) {
+      alert("🛒 You bought bike #" + id + "!");
+    }
+
+    async function rent(id) {
+      alert("🚴 You rented bike #" + id + "!");
+    }
+
+    loadBikes();
+  </script>
+</body>
+</html>
