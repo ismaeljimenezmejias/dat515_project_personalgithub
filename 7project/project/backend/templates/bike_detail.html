@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Bike Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    h1 {
+      margin: 0 0 1rem;
+      color: #333;
+    }
+    .bike-header {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .price-section {
+      display: flex;
+      gap: 2rem;
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+    .price-box {
+      flex: 1;
+    }
+    .price-label {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+    .price-value {
+      font-size: 1.75rem;
+      font-weight: bold;
+      color: #28a745;
+    }
+    .detail-section {
+      margin: 1.5rem 0;
+    }
+    .detail-row {
+      display: flex;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    .detail-label {
+      font-weight: 600;
+      color: #555;
+      min-width: 150px;
+    }
+    .detail-value {
+      color: #333;
+    }
+    .description {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      line-height: 1.6;
+    }
+    .action-buttons {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    .btn-primary {
+      background: #28a745;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #218838;
+    }
+    .btn-secondary {
+      background: #007bff;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #0056b3;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+    .error {
+      padding: 1rem;
+      background: #f8d7da;
+      color: #721c24;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    .hero {
+      width: 100%;
+      max-height: 360px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body data-bike-id="{{ bike_id }}">
+  <div class="container">
+    <a href="/bikes" class="back-link">← Back to all bikes</a>
+    
+    <div id="loading" class="loading">Loading bike details...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="bike-content" style="display: none;">
+      <div class="bike-header">
+        <h1 id="bike-title"></h1>
+        <div id="bike-badges"></div>
+      </div>
+
+      <img id="bike-image" class="hero" src="" alt="Bike photo" onerror="this.src='https://via.placeholder.com/800x360?text=Bike'" />
+
+      <div class="price-section" id="price-section"></div>
+
+      <div class="detail-section">
+        <div class="detail-row">
+          <div class="detail-label">Model:</div>
+          <div class="detail-value" id="bike-model"></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Condition:</div>
+          <div class="detail-value" id="bike-condition"></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Posted:</div>
+          <div class="detail-value" id="bike-date"></div>
+        </div>
+      </div>
+
+      <div class="description">
+        <strong>Description:</strong>
+        <p id="bike-description"></p>
+      </div>
+
+      <div class="action-buttons" id="action-buttons"></div>
+    </div>
+  </div>
+
+  <script>
+  const bikeId = Number(document.body.dataset.bikeId);
+
+    async function loadBikeDetails() {
+      try {
+        const res = await fetch('/api/bikes');
+        const data = await res.json();
+        
+        const bike = data.bikes.find(b => b.id === bikeId);
+        
+        if (!bike) {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('error').style.display = 'block';
+          document.getElementById('error').textContent = 'Bike not found';
+          return;
+        }
+
+        // Mostrar contenido
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('bike-content').style.display = 'block';
+
+  // Título
+        document.getElementById('bike-title').textContent = bike.title;
+
+  // Imagen principal
+  const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=800&q=60';
+  document.getElementById('bike-image').src = imgSrc;
+
+        // Badges según tipo
+        const badgesDiv = document.getElementById('bike-badges');
+        if (bike.sale_type === 'venta') {
+          badgesDiv.innerHTML = '<span class="badge badge-success">For Sale</span>';
+        } else if (bike.sale_type === 'alquiler') {
+          badgesDiv.innerHTML = '<span class="badge badge-info">For Rent</span>';
+        } else {
+          badgesDiv.innerHTML = '<span class="badge badge-success">For Sale</span> <span class="badge badge-info">For Rent</span>';
+        }
+
+        // Precios
+        const priceSection = document.getElementById('price-section');
+        let priceHTML = '';
+        
+        if (bike.sale_price) {
+          priceHTML += `
+            <div class="price-box">
+              <div class="price-label">Sale Price (NOK)</div>
+              <div class="price-value">${bike.sale_price.toFixed(2)}</div>
+            </div>
+          `;
+        }
+        
+        if (bike.rental_price) {
+          priceHTML += `
+            <div class="price-box">
+              <div class="price-label">Rental Price (NOK/year)</div>
+              <div class="price-value">${bike.rental_price.toFixed(2)}</div>
+            </div>
+          `;
+        }
+        
+        priceSection.innerHTML = priceHTML;
+
+        // Detalles
+        document.getElementById('bike-model').textContent = bike.model || 'Not specified';
+        document.getElementById('bike-condition').textContent = bike.condition || 'Not specified';
+        
+        const date = new Date(bike.created_at);
+        document.getElementById('bike-date').textContent = date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        document.getElementById('bike-description').textContent = bike.description || 'No description available';
+
+        // Botones de acción
+        const actionsDiv = document.getElementById('action-buttons');
+        let actionsHTML = '';
+        
+        if (bike.sale_type === 'venta' || bike.sale_type === 'ambos') {
+          actionsHTML += '<button class="btn btn-primary" onclick="alert(\'Contact seller feature coming soon!\')">💰 Buy Now</button>';
+        }
+        
+        if (bike.sale_type === 'alquiler' || bike.sale_type === 'ambos') {
+          actionsHTML += '<button class="btn btn-secondary" onclick="alert(\'Rent feature coming soon!\')">🚴 Rent This Bike</button>';
+        }
+        
+        actionsDiv.innerHTML = actionsHTML;
+
+      } catch (err) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Error loading bike details: ' + err.message;
+      }
+    }
+
+    loadBikeDetails();
+  </script>
+</body>
+</html>

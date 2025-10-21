@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Available bikes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #007bff;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .filters {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: white;
+      border-radius: 6px;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .filters button {
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .filters button.active {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .badge-sale { background: #28a745; color: white; }
+    .badge-rent { background: #ffc107; color: #000; }
+    .badge-both { background: #17a2b8; color: white; }
+    .btn-refresh {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-refresh:hover {
+      background: #0056b3;
+    }
+    .thumb { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">← Home</a>
+    <h1>🚲 Available bikes</h1>
+    
+    <div style="margin-bottom: 1rem;">
+      <input type="text" id="searchBox" placeholder="Search by title, description, or owner..." style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 300px;" />
+    </div>
+    
+    <div class="filters">
+      <strong>Filter:</strong>
+      <button onclick="filterBikes('all')" class="active" id="filter-all">All</button>
+      <button onclick="filterBikes('venta')" id="filter-venta">For Sale</button>
+      <button onclick="filterBikes('alquiler')" id="filter-alquiler">For Rent</button>
+      <button onclick="loadBikes()" class="btn-refresh">🔄 Refresh</button>
+    </div>
+
+    <table id="bikeTable">
+      <thead>
+        <tr>
+          <th>Photo</th>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Model</th>
+          <th>Price (NOK)</th>
+          <th>Owner</th>
+          <th>Condition</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    let currentFilter = 'all';
+    let lastQueryUrl = '';
+
+    async function loadBikes() {
+  const params = new URLSearchParams();
+  if (currentFilter !== 'all') params.set('type', currentFilter);
+  
+  const searchText = document.getElementById('searchBox').value.trim();
+  if (searchText) {
+    params.set('search', searchText);
+  }
+  
+  const url = params.toString() ? `/api/bikes?${params.toString()}` : '/api/bikes';
+  if (url === lastQueryUrl) return;
+  lastQueryUrl = url;
+      const res = await fetch(url);
+      const data = await res.json();
+      const tbody = document.querySelector('#bikeTable tbody');
+      const bikes = data.bikes || [];
+
+      if (bikes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = bikes.map(bike => {
+        // Determinar qué precio mostrar
+        let priceDisplay = '';
+        if (bike.sale_type === 'venta' && bike.sale_price) {
+          priceDisplay = `<strong>${bike.sale_price.toFixed(2)}</strong>`;
+        } else if (bike.sale_type === 'alquiler' && bike.rental_price) {
+          priceDisplay = `<strong>${bike.rental_price.toFixed(2)} / year</strong>`;
+        } else if (bike.sale_type === 'ambos') {
+          priceDisplay = `Sale: <strong>${bike.sale_price ? bike.sale_price.toFixed(2) : '—'}</strong><br>Rent: <strong>${bike.rental_price ? bike.rental_price.toFixed(2) : '—'} / year</strong>`;
+        } else {
+          priceDisplay = '—';
+        }
+
+        // Botones de acción según el tipo
+        let actionButtons = '';
+        if (bike.sale_type === 'venta') {
+          actionButtons = '<button class="badge badge-sale" style="cursor:pointer;border:none;" onclick="event.stopPropagation(); alert(\'Buy feature coming soon!\')">Buy</button>';
+        } else if (bike.sale_type === 'alquiler') {
+          actionButtons = '<button class="badge badge-rent" style="cursor:pointer;border:none;" onclick="event.stopPropagation(); alert(\'Rent feature coming soon!\')">Rent</button>';
+        } else {
+          actionButtons = `
+            <button class="badge badge-sale" style="cursor:pointer;border:none;margin-right:4px;" onclick="event.stopPropagation(); alert('Buy feature coming soon!')">Buy</button>
+            <button class="badge badge-rent" style="cursor:pointer;border:none;" onclick="event.stopPropagation(); alert('Rent feature coming soon!')">Rent</button>
+          `;
+        }
+
+        const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
+        return `
+          <tr onclick="window.location.href='/bike/${bike.id}'">
+            <td><img class="thumb" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
+            <td>${bike.id}</td>
+            <td><strong>${bike.title}</strong></td>
+            <td>${bike.model || '—'}</td>
+            <td>${priceDisplay}</td>
+            <td>${bike.owner_id ? `<a href='/user/${bike.owner_id}' onclick=\"event.stopPropagation()\">${bike.owner_name || ('User #' + bike.owner_id)}</a>` : '—'}</td>
+            <td>${bike.condition || '—'}</td>
+            <td>${actionButtons}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterBikes(type) {
+      currentFilter = type;
+      document.querySelectorAll('.filters button:not(.btn-refresh)').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('filter-' + type).classList.add('active');
+      loadBikes();
+    }
+
+    // Search applies on Enter or change
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('keyup', (e)=>{ if (e.key === 'Enter') loadBikes(); });
+    searchBox.addEventListener('change', ()=> loadBikes());
+
+    loadBikes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui, sans-serif;background:#f4f4f4;margin:0;padding:2rem}
+    .card{max-width:420px;margin:40px auto;background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+    h1{margin:0 0 1rem;color:#333}
+    label{display:block;margin:.5rem 0;color:#555}
+    input{width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:14px}
+    button{margin-top:1rem;padding:10px 16px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer}
+    .note{color:#666;margin-top:.5rem;font-size:.9rem}
+    .error{color:#dc3545;margin-top:.5rem}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Login</h1>
+    <p class="note">Just enter a display name for now. No password required.</p>
+    <label for="name">Display name</label>
+    <input id="name" placeholder="e.g., Alice" />
+    <div>
+      <button id="loginBtn">Login</button>
+      <span id="status"></span>
+    </div>
+  </div>
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', async ()=>{
+      const name = document.getElementById('name').value.trim();
+      if(!name){ alert('Name is required'); return; }
+      const res = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name})});
+      const json = await res.json();
+      if(res.ok){
+        window.location.href = '/';
+      }else{
+        document.getElementById('status').textContent = json.error || 'Login failed';
+        document.getElementById('status').className = 'error';
+      }
+    });
+  </script>
+</body>
+</html>

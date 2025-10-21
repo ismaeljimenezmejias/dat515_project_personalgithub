@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Campus Bikes Marketplace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { 
+      font-family: system-ui, sans-serif; 
+      margin: 0; 
+      padding: 2rem; 
+      background: #f4f4f4; 
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    h1 { 
+      color: #333; 
+      margin: 0;
+    }
+    .about-link {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .about-link:hover {
+      background: #0056b3;
+    }
+    .filters {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: white;
+      border-radius: 6px;
+    }
+    .price-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; }
+    .range-row { background: #f8f9fa; padding: 0.75rem; border-radius: 6px; }
+    .range-row label { font-weight: 600; color: #555; display: block; margin-bottom: 0.5rem; }
+    .range-inputs { display: flex; align-items: center; gap: 8px; }
+    .range-inputs input[type=range] { flex: 1; }
+    .range-values { color: #333; min-width: 140px; text-align: right; font-variant-numeric: tabular-nums; }
+    .filters button {
+      padding: 8px 16px;
+      margin-right: 8px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .filters button.active {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    table { 
+      border-collapse: collapse; 
+      width: 100%; 
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td { 
+      border: 1px solid #ddd; 
+      padding: 12px; 
+      text-align: left; 
+    }
+    th { 
+      background: #f8f9fa;
+      font-weight: 600;
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+    .btn {
+      padding: 6px 12px;
+      margin-right: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+    }
+    .btn-success { background: #28a745; color: white; }
+    .btn-info { background: #17a2b8; color: white; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn:hover { opacity: 0.9; }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-sale { background: #28a745; color: white; }
+    .badge-rent { background: #ffc107; color: #000; }
+    .badge-both { background: #17a2b8; color: white; }
+    .thumb {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚲 Campus Bikes Marketplace</h1>
+      <div>
+      <a href="/about" class="about-link" style="margin-right:8px;">About</a>
+      <a href="/publish" class="about-link" id="publish-link" style="display:none;background:#28a745;">Publish</a>
+      <a href="/bikes" class="about-link" style="background:#17a2b8;">Bikes</a>
+      <a href="/profile" class="about-link" id="profile-link" style="display:none;background:#343a40;">My profile</a>
+      <a href="/login" class="about-link" id="login-link" style="background:#6c757d;">Login</a>
+      <a href="#" class="about-link" id="logout-link" style="display:none;background:#dc3545;">Logout</a>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 1rem;">
+    <button onclick="loadBikes()" class="btn btn-primary">🔄 Refresh</button>
+    <input type="text" id="searchBox" placeholder="Search by title, description, or owner..." style="margin-left: 1rem; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 300px;" />
+  </div>
+
+  <div class="filters">
+    <strong>Filter by:</strong>
+    <button onclick="filterBikes('all')" class="active" id="filter-all">All</button>
+    <button onclick="filterBikes('venta')" id="filter-venta">For Sale</button>
+    <button onclick="filterBikes('alquiler')" id="filter-alquiler">For Rent</button>
+
+    <div class="price-filters">
+      <div class="range-row" id="sale-range-row">
+        <label>Sale price (NOK)</label>
+        <div class="range-inputs">
+          <input type="range" id="saleMin" min="0" max="10000" step="10" value="0">
+          <input type="range" id="saleMax" min="0" max="10000" step="10" value="10000">
+          <div class="range-values"><span id="saleMinVal">0</span> - <span id="saleMaxVal">10000</span></div>
+        </div>
+      </div>
+      <div class="range-row" id="rent-range-row">
+        <label>Rental price (NOK/year)</label>
+        <div class="range-inputs">
+          <input type="range" id="rentMin" min="0" max="1000" step="5" value="0">
+          <input type="range" id="rentMax" min="0" max="1000" step="5" value="1000">
+          <div class="range-values"><span id="rentMinVal">0</span> - <span id="rentMaxVal">1000</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table id="bikeTable">
+    <thead>
+      <tr>
+    <th>Photo</th>
+    <th>Title</th>
+        <th>Model</th>
+  <th>Price (NOK)</th>
+  <th>Owner</th>
+  <th>Condition</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let currentFilter = 'all';
+    let currentUser = null; // fetched from /api/me
+    let lastQueryUrl = '';
+  const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
+  const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
+
+    async function ensureSession() {
+      try {
+        const res = await fetch('/api/me');
+        const me = await res.json();
+        currentUser = me.authenticated ? me.user : null;
+        // Toggle buttons
+        document.getElementById('login-link').style.display = currentUser ? 'none' : 'inline-block';
+        document.getElementById('logout-link').style.display = currentUser ? 'inline-block' : 'none';
+        document.getElementById('publish-link').style.display = currentUser ? 'inline-block' : 'none';
+        document.getElementById('profile-link').style.display = currentUser ? 'inline-block' : 'none';
+        if (currentUser) {
+          document.getElementById('profile-link').textContent = currentUser.name;
+        } else {
+          document.getElementById('profile-link').textContent = 'My profile';
+        }
+      } catch (err) {
+        // Silently fail
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      currentUser = null;
+      ensureSession();
+      loadBikes();
+    }
+    document.getElementById('logout-link').addEventListener('click', (e)=>{ e.preventDefault(); logout(); });
+
+    async function loadBikes() {
+  const params = new URLSearchParams();
+  if (currentFilter !== 'all') params.set('type', currentFilter);
+  if (currentUser) params.set('excludeMine', '1');
+  
+  // Search text
+  const searchText = document.getElementById('searchBox').value.trim();
+  if (searchText) {
+    params.set('search', searchText);
+  }
+  
+  // Price filters
+  const saleMin = Number(document.getElementById('saleMin').value);
+  const saleMax = Number(document.getElementById('saleMax').value);
+  const rentMin = Number(document.getElementById('rentMin').value);
+  const rentMax = Number(document.getElementById('rentMax').value);
+
+  const saleActive = (saleMin > SALE_MIN_DEFAULT) || (saleMax < SALE_MAX_DEFAULT);
+  const rentActive = (rentMin > RENT_MIN_DEFAULT) || (rentMax < RENT_MAX_DEFAULT);
+
+  if (currentFilter === 'venta') {
+    if (saleActive) {
+      params.set('minSalePrice', String(saleMin));
+      params.set('maxSalePrice', String(saleMax));
+    }
+  } else if (currentFilter === 'alquiler') {
+    if (rentActive) {
+      params.set('minRentalPrice', String(rentMin));
+      params.set('maxRentalPrice', String(rentMax));
+    }
+  } else {
+    if (saleActive) {
+      params.set('minSalePrice', String(saleMin));
+      params.set('maxSalePrice', String(saleMax));
+    }
+    if (rentActive) {
+      params.set('minRentalPrice', String(rentMin));
+      params.set('maxRentalPrice', String(rentMax));
+    }
+  }
+      const url = '/api/bikes' + (params.toString() ? `?${params.toString()}` : '');
+      if (url === lastQueryUrl) {
+        return; // avoid redundant refetch and re-render that can cause flicker
+      }
+      lastQueryUrl = url;
+      const res = await fetch(url);
+      const data = await res.json();
+      const tbody = document.querySelector('#bikeTable tbody');
+      const bikes = data.bikes || [];
+      
+      if (bikes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = bikes.map(bike => {
+        // Determinar qué precio mostrar
+        let priceDisplay = '';
+        if (bike.sale_type === 'venta' && bike.sale_price) {
+          priceDisplay = `<strong>${bike.sale_price.toFixed(2)}</strong>`;
+        } else if (bike.sale_type === 'alquiler' && bike.rental_price) {
+          priceDisplay = `<strong>${bike.rental_price.toFixed(2)} / year</strong>`;
+        } else if (bike.sale_type === 'ambos') {
+          priceDisplay = `Sale: <strong>${bike.sale_price ? bike.sale_price.toFixed(2) : '—'}</strong><br>Rent: <strong>${bike.rental_price ? bike.rental_price.toFixed(2) : '—'} / year</strong>`;
+        } else {
+          priceDisplay = '—';
+        }
+
+        const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
+        return `
+          <tr onclick=\"window.location.href='/bike/${bike.id}'\">
+            <td><img class="thumb" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
+            <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
+            <td>${bike.model || '—'}</td>
+            <td>${priceDisplay}</td>
+            <td>${bike.owner_id ? `<a href='/user/${bike.owner_id}' onclick=\"event.stopPropagation()\">${bike.owner_name || ('User #' + bike.owner_id)}</a>` : '—'}</td>
+            <td>${bike.condition || '—'}</td>
+            <td>
+              ${bike.sale_type !== 'alquiler' ? `<button class="btn btn-success" onclick="event.stopPropagation(); buy(${bike.id}, '${bike.title}')">Buy</button>` : ''}
+              ${bike.sale_type !== 'venta' ? `<button class="btn btn-info" onclick="event.stopPropagation(); rent(${bike.id}, '${bike.title}')">Rent</button>` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterBikes(type) {
+      currentFilter = type;
+      document.querySelectorAll('.filters button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('filter-' + type).classList.add('active');
+      updatePriceVisibility();
+      loadBikes();
+    }
+
+    function syncRanges(minInput, maxInput, minValEl, maxValEl) {
+      let minVal = Number(minInput.value);
+      let maxVal = Number(maxInput.value);
+      if (minVal > maxVal) {
+        // swap to keep consistency
+        [minVal, maxVal] = [maxVal, minVal];
+        minInput.value = String(minVal);
+        maxInput.value = String(maxVal);
+      }
+      minValEl.textContent = minVal.toFixed(0);
+      maxValEl.textContent = maxVal.toFixed(0);
+    }
+
+    function updatePriceVisibility() {
+      const saleRow = document.getElementById('sale-range-row');
+      const rentRow = document.getElementById('rent-range-row');
+      if (currentFilter === 'venta') {
+        saleRow.style.display = 'block';
+        rentRow.style.display = 'none';
+      } else if (currentFilter === 'alquiler') {
+        saleRow.style.display = 'none';
+        rentRow.style.display = 'block';
+      } else {
+        saleRow.style.display = 'block';
+        rentRow.style.display = 'block';
+      }
+    }
+
+    async function buy(id, title) {
+      alert("🛒 You bought: " + title + "!");
+    }
+
+    async function rent(id, title) {
+      alert("🚴 You rented: " + title + "!");
+    }
+
+    // Initialize on page load
+    (async () => {
+      await ensureSession();
+      // Wire up range handlers
+      const saleMin = document.getElementById('saleMin');
+      const saleMax = document.getElementById('saleMax');
+      const rentMin = document.getElementById('rentMin');
+      const rentMax = document.getElementById('rentMax');
+      const saleMinVal = document.getElementById('saleMinVal');
+      const saleMaxVal = document.getElementById('saleMaxVal');
+      const rentMinVal = document.getElementById('rentMinVal');
+      const rentMaxVal = document.getElementById('rentMaxVal');
+  const searchBox = document.getElementById('searchBox');
+
+      const saleSync = () => { syncRanges(saleMin, saleMax, saleMinVal, saleMaxVal); };
+      const rentSync = () => { syncRanges(rentMin, rentMax, rentMinVal, rentMaxVal); };
+      
+      // Solo actualizar cuando sueltes el slider (change), no mientras arrastras
+      saleMin.addEventListener('change', () => { saleSync(); loadBikes(); });
+      saleMax.addEventListener('change', () => { saleSync(); loadBikes(); });
+      rentMin.addEventListener('change', () => { rentSync(); loadBikes(); });
+      rentMax.addEventListener('change', () => { rentSync(); loadBikes(); });
+      
+      // Search applies on Enter or when input loses focus (change). This avoids constant redraws.
+      searchBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') loadBikes(); });
+      searchBox.addEventListener('change', () => loadBikes());
+
+      saleSync();
+      rentSync();
+      updatePriceVisibility();
+      loadBikes();
+    })();
+  </script>
+</body>
+</html>

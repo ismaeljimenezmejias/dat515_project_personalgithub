@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Publish a bike</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+    .radio-group input[type="radio"] {
+      width: auto;
+      margin-right: 0.5rem;
+    }
+    button {
+      padding: 12px 24px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #007bff;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    #status {
+      margin-left: 12px;
+      font-weight: 500;
+    }
+    .success {
+      color: #28a745;
+    }
+    .error {
+      color: #dc3545;
+    }
+    .preview {
+      margin-top: 8px;
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">← Back to home</a>
+    <h1>📝 Publish a bike</h1>
+    <div id="authWarning" style="display:none;padding:10px;border:1px solid #ffc107;background:#fff3cd;border-radius:6px;margin-bottom:12px;">
+      Please <a href="/login">login</a> to publish bikes.
+    </div>
+    
+    <div class="form-group">
+      <label>Title *</label>
+      <input id="title" type="text" placeholder="e.g., Mountain bike Trek" required />
+    </div>
+
+    <div class="form-group">
+      <label>Model</label>
+      <input id="model" type="text" placeholder="e.g., Trek Marlin 5" />
+    </div>
+
+    <div class="form-group">
+      <label>Image URL</label>
+      <input id="imageUrl" type="url" placeholder="https://..." />
+      <img id="imagePreview" class="preview" alt="Preview" />
+    </div>
+
+    <div class="form-group">
+      <label>Type *</label>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="sale_type" value="venta" checked />
+          For Sale
+        </label>
+        <label>
+          <input type="radio" name="sale_type" value="alquiler" />
+          For Rent
+        </label>
+        <label>
+          <input type="radio" name="sale_type" value="ambos" />
+          Both
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group" id="sale-price-group">
+  <label>Sale Price (NOK) <span id="sale-required"></span></label>
+      <input id="salePrice" type="number" step="0.01" min="0" placeholder="e.g., 350.00" />
+      <small style="color: #666; display: block; margin-top: 4px;">
+        If you choose "Both", rental price defaults to 15% of sale price (editable)
+      </small>
+    </div>
+
+    <div class="form-group" id="rental-price-group" style="display: none;">
+  <label>Rental Price (NOK/year) <span id="rental-required"></span></label>
+      <input id="rentalPrice" type="number" step="0.01" min="0" placeholder="e.g., 52.50" />
+    </div>
+
+    <div class="form-group">
+      <label>Condition</label>
+      <select id="condition">
+        <option value="">Select condition</option>
+        <option value="Like new">Like new</option>
+        <option value="Excellent">Excellent</option>
+        <option value="Good">Good</option>
+        <option value="Used">Used</option>
+        <option value="Needs repair">Needs repair</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="description" placeholder="Add details about the bike..."></textarea>
+    </div>
+
+    <div>
+      <button id="submit">Publish bike</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <script>
+    // Actualizar campos según el tipo seleccionado
+    const saleTypeRadios = document.querySelectorAll('input[name="sale_type"]');
+    const salePriceGroup = document.getElementById('sale-price-group');
+    const rentalPriceGroup = document.getElementById('rental-price-group');
+    const salePriceInput = document.getElementById('salePrice');
+    const rentalPriceInput = document.getElementById('rentalPrice');
+    const saleRequired = document.getElementById('sale-required');
+    const rentalRequired = document.getElementById('rental-required');
+  const imageUrlInput = document.getElementById('imageUrl');
+  const imagePreview = document.getElementById('imagePreview');
+
+    function updatePriceFields() {
+      const saleType = document.querySelector('input[name="sale_type"]:checked').value;
+
+      if (saleType === 'venta') {
+        salePriceGroup.style.display = 'block';
+        rentalPriceGroup.style.display = 'none';
+        saleRequired.textContent = '*';
+        rentalRequired.textContent = '';
+        salePriceInput.setAttribute('required', 'required');
+        rentalPriceInput.removeAttribute('required');
+      } else if (saleType === 'alquiler') {
+        salePriceGroup.style.display = 'none';
+        rentalPriceGroup.style.display = 'block';
+        saleRequired.textContent = '';
+        rentalRequired.textContent = '*';
+        salePriceInput.removeAttribute('required');
+        rentalPriceInput.setAttribute('required', 'required');
+      } else {
+        // ambos
+        salePriceGroup.style.display = 'block';
+        rentalPriceGroup.style.display = 'block';
+        saleRequired.textContent = '*';
+        rentalRequired.textContent = '*';
+        salePriceInput.setAttribute('required', 'required');
+        rentalPriceInput.setAttribute('required', 'required');
+        calculateRentalPriceIfEmpty();
+      }
+    }
+
+    function calculateRentalPriceIfEmpty() {
+      // Autocalcular solo si el campo está vacío o 0 para no pisar un valor manual
+      const saleType = document.querySelector('input[name="sale_type"]:checked').value;
+      const salePrice = Number(salePriceInput.value);
+      if (saleType === 'ambos' && salePrice > 0) {
+        const current = Number(rentalPriceInput.value || '0');
+        if (!current) {
+          rentalPriceInput.value = (salePrice * 0.15).toFixed(2);
+        }
+      }
+    }
+
+    saleTypeRadios.forEach(radio => radio.addEventListener('change', updatePriceFields));
+    // Usar un debounce para no calcular mientras el usuario escribe
+    let recalcTimer;
+    const recalc = () => {
+      const saleType = document.querySelector('input[name="sale_type"]:checked').value;
+      if (saleType === 'ambos') {
+        clearTimeout(recalcTimer);
+        recalcTimer = setTimeout(() => {
+          const hadValue = rentalPriceInput.value && Number(rentalPriceInput.value) > 0;
+          if (!hadValue) {
+            calculateRentalPriceIfEmpty();
+          }
+        }, 500); // Esperar 500ms después de que el usuario pare de escribir
+      }
+    };
+    salePriceInput.addEventListener('input', recalc);
+    salePriceInput.addEventListener('change', () => {
+      clearTimeout(recalcTimer);
+      calculateRentalPriceIfEmpty();
+    });
+    // Estado inicial
+    updatePriceFields();
+
+    // Image preview
+    imageUrlInput.addEventListener('input', () => {
+      const url = imageUrlInput.value.trim();
+      if (url) {
+        imagePreview.src = url;
+        imagePreview.style.display = 'block';
+      } else {
+        imagePreview.style.display = 'none';
+      }
+    });
+    
+    async function ensureAuth(){
+      try{
+        const res = await fetch('/api/me');
+        const me = await res.json();
+        const disabled = !me.authenticated;
+        document.getElementById('submit').disabled = disabled;
+        document.getElementById('authWarning').style.display = disabled ? 'block' : 'none';
+      }catch{}
+    }
+    ensureAuth();
+
+    document.getElementById('submit').addEventListener('click', async function() {
+      const title = document.getElementById('title').value.trim();
+      const model = document.getElementById('model').value.trim();
+      const salePrice = document.getElementById('salePrice').value;
+      const sale_type = document.querySelector('input[name="sale_type"]:checked').value;
+      const condition = document.getElementById('condition').value;
+      const description = document.getElementById('description').value.trim();
+      
+      if (!title) {
+        alert('Title is required');
+        return;
+      }
+      
+      // Validar precios según el tipo
+      if (sale_type === 'venta') {
+        if (!salePrice || Number(salePrice) <= 0) {
+          alert('Sale price is required');
+          return;
+        }
+      } else if (sale_type === 'alquiler') {
+        if (!rentalPriceInput.value || Number(rentalPriceInput.value) <= 0) {
+          alert('Rental price is required');
+          return;
+        }
+      } else {
+        if (!salePrice || Number(salePrice) <= 0) {
+          alert('Sale price is required when choosing both');
+          return;
+        }
+        if (!rentalPriceInput.value || Number(rentalPriceInput.value) <= 0) {
+          alert('Rental price is required when choosing both');
+          return;
+        }
+      }
+
+      const payload = {
+        title,
+        model,
+  sale_price: (sale_type === 'venta' || sale_type === 'ambos') && salePrice ? Number(salePrice) : null,
+  rental_price: (sale_type === 'alquiler' || sale_type === 'ambos') && rentalPriceInput.value ? Number(rentalPriceInput.value) : null,
+        sale_type,
+        condition,
+        description,
+        image_url: imageUrlInput.value.trim() || null
+      };
+
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = 'Publishing...';
+      statusEl.className = '';
+
+      try {
+        const res = await fetch('/api/bikes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const json = await res.json();
+        
+        if (res.ok) {
+          statusEl.textContent = '✓ Published successfully!';
+          statusEl.className = 'success';
+          
+          // Limpiar formulario
+          document.getElementById('title').value = '';
+          document.getElementById('model').value = '';
+          document.getElementById('imageUrl').value = '';
+          imagePreview.style.display = 'none';
+          document.getElementById('salePrice').value = '';
+          document.getElementById('rentalPrice').value = '';
+          document.getElementById('condition').value = '';
+          document.getElementById('description').value = '';
+          document.querySelector('input[name="sale_type"][value="venta"]').checked = true;
+          updatePriceFields();
+          
+          // Redirigir después de 1.5 segundos
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        } else {
+          statusEl.textContent = '✗ Error: ' + (json.error || res.statusText);
+          statusEl.className = 'error';
+        }
+      } catch (err) {
+        statusEl.textContent = '✗ Network error';
+        statusEl.className = 'error';
+      }
+    });
+  </script>
+</body>
+</html>
