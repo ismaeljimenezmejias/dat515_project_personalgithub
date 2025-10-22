@@ -1,22 +1,21 @@
 # Weekly Meeting Notes
 
-- Group X - Project Title
-- Mentor: Mentor Name
-
-Keep all meeting notes in the `meetings.md` file in your project folder.
-Just copy the template below for each weekly meeting and fill in the details.
+- Group 19 - Local Bike Marketplace 
+- Mentor: Foroozan.E
 
 ## Administrative Info
 
-- Date: 2025-09-19
-- Attendees: Name1, Name2, Name3
-- Notetaker: Name1
+- Date: 2025-10-22
+- Attendees: Ismael Jimenez
+- Notetaker: Ismael Jimenez
 
 ## Progress Update (Before Meeting)
 
-Summary of what has been accomplished since the last meeting in the following categories.
+Implemented the persistent database and finished the main logic of the web with the search and filtering options, the user account and profile (lacking authentication).
+Defined some goals.
 
 ### Coding
+HTML files in /templates. Changed Dockerfile and docker-compose.yaml
 
 ### Documentation
 
@@ -24,18 +23,33 @@ Summary of what has been accomplished since the last meeting in the following ca
 
 Prepare 3-5 questions and topics you want to discuss with your mentor.
 
-1. Question 1
-2. Question 2
-3. Question 3
+1. Are my following steps okey?
+
+Cloud deployment
+Status: Open.
+#11 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+
+Error handling & robustness
+Status: Open.
+#10 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+
+Authentication and Authorization
+Status: Open.
+#9 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+
+Location-based services (e.g., map integration)
+Status: Open.
+#8 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+
+In-app messaging between buyers and sellers
+Status: Open.
+#7 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+
+2. There's some flickering in the app I don't know where it comes from.
+3. 
 
 ## Discussion Notes (During Meeting)
 
 ## Action Items for Next Week (During Meeting)
-
-Last 3 minutes of the meeting, summarize action items.
-
-- [ ] Action Item 1
-- [ ] Action Item 2
-- [ ] Action Item 3
-
----
+ 
+In the questions.
