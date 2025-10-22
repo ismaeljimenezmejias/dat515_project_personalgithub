@@ -60,10 +60,10 @@ High-level architecture, main components, interactions, and data flow. Include a
 
 ```mermaid
 flowchart LR
-  Client[Browser] --> Nginx[Nginx (Reverse Proxy)]
-  Nginx --> Flask[Flask: Jinja2 Templates + REST API]
-  Flask --> MySQL[(MySQL 8 + Docker Volume)]
-  Flask --> Redis[(Redis 7 Cache)]
+  Client["Browser"] --> Nginx["Nginx (Reverse Proxy)"]
+  Nginx --> Flask["Flask: Jinja2 Templates + REST API"]
+  Flask --> MySQL["MySQL 8 + Docker Volume"]
+  Flask --> Redis["Redis 7 Cache"]
 ```
 
 Components and responsibilities:
