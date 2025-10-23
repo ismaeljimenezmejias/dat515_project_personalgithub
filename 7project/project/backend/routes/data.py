@@ -276,3 +276,146 @@ def update_bike(bike_id):
         return jsonify({'ok': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ============== MESSAGING ENDPOINTS ==============
+
+@data_bp.route('/api/messages', methods=['POST'])
+def send_message():
+    """Send a message about a bike"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        payload = request.get_json(silent=True) or {}
+        bike_id = payload.get('bike_id')
+        receiver_id = payload.get('receiver_id')
+        content = (payload.get('content') or '').strip()
+        
+        if not bike_id or not receiver_id or not content:
+            return jsonify({'error': 'bike_id, receiver_id, and content are required'}), 400
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Verify bike exists
+        cursor.execute('SELECT id FROM bikes WHERE id = %s', (bike_id,))
+        if not cursor.fetchone():
+            return jsonify({'error': 'Bike not found'}), 404
+        
+        # Insert message
+        cursor.execute(
+            """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at) 
+               VALUES (%s, %s, %s, %s, %s)""",
+            (bike_id, user_id, receiver_id, content, datetime.now())
+        )
+        conn.commit()
+        message_id = cursor.lastrowid
+        conn.close()
+        
+        return jsonify({'ok': True, 'message_id': message_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@data_bp.route('/api/messages/bike/<int:bike_id>', methods=['GET'])
+def get_bike_messages(bike_id):
+    """Get all messages for a specific bike (only participants can see them)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Get messages where user is sender or receiver
+        cursor.execute(
+            """SELECT m.id, m.bike_id, m.sender_id, m.receiver_id, m.content, m.created_at,
+                      sender.name as sender_name, receiver.name as receiver_name
+               FROM messages m
+               JOIN users sender ON m.sender_id = sender.id
+               JOIN users receiver ON m.receiver_id = receiver.id
+               WHERE m.bike_id = %s AND (m.sender_id = %s OR m.receiver_id = %s)
+               ORDER BY m.created_at ASC""",
+            (bike_id, user_id, user_id)
+        )
+        
+        rows = cursor.fetchall()
+        messages = []
+        for row in rows:
+            created_val = row[5]
+            created_str = created_val.isoformat() if hasattr(created_val, 'isoformat') else str(created_val)
+            messages.append({
+                'id': row[0],
+                'bike_id': row[1],
+                'sender_id': row[2],
+                'receiver_id': row[3],
+                'content': row[4],
+                'created_at': created_str,
+                'sender_name': row[6],
+                'receiver_name': row[7],
+                'is_mine': row[2] == user_id
+            })
+        
+        conn.close()
+        return jsonify({'messages': messages})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@data_bp.route('/api/messages/conversations', methods=['GET'])
+def get_conversations():
+    """Get list of conversations (unique bike+user pairs) for current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Get unique conversations with latest message
+        cursor.execute(
+            """SELECT DISTINCT 
+                   m.bike_id,
+                   b.title as bike_title,
+                   b.image_url,
+                   IF(m.sender_id = %s, m.receiver_id, m.sender_id) as other_user_id,
+                   u.name as other_user_name,
+                   (SELECT content FROM messages m2 
+                    WHERE m2.bike_id = m.bike_id 
+                      AND (m2.sender_id = %s OR m2.receiver_id = %s)
+                    ORDER BY m2.created_at DESC LIMIT 1) as last_message,
+                   (SELECT created_at FROM messages m2 
+                    WHERE m2.bike_id = m.bike_id 
+                      AND (m2.sender_id = %s OR m2.receiver_id = %s)
+                    ORDER BY m2.created_at DESC LIMIT 1) as last_message_at
+               FROM messages m
+               JOIN bikes b ON m.bike_id = b.id
+               JOIN users u ON IF(m.sender_id = %s, m.receiver_id, m.sender_id) = u.id
+               WHERE m.sender_id = %s OR m.receiver_id = %s
+               ORDER BY last_message_at DESC""",
+            (user_id, user_id, user_id, user_id, user_id, user_id, user_id, user_id)
+        )
+        
+        rows = cursor.fetchall()
+        conversations = []
+        for row in rows:
+            last_msg_at = row[6]
+            last_msg_str = last_msg_at.isoformat() if hasattr(last_msg_at, 'isoformat') else str(last_msg_at) if last_msg_at else None
+            conversations.append({
+                'bike_id': row[0],
+                'bike_title': row[1],
+                'bike_image': row[2],
+                'other_user_id': row[3],
+                'other_user_name': row[4],
+                'last_message': row[5],
+                'last_message_at': last_msg_str
+            })
+        
+        conn.close()
+        return jsonify({'conversations': conversations})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

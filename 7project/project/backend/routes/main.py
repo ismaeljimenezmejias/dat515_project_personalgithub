@@ -49,3 +49,26 @@ def my_profile():
 @main_bp.route('/user/<int:user_id>')
 def user_profile(user_id):
     return no_cache(make_response(render_template('profile.html', profile_user_id=user_id)))
+
+
+@main_bp.route('/messages')
+def messages_list():
+    """Show all conversations for current user"""
+    uid = session.get('user_id')
+    if not uid:
+        return redirect(url_for('main.login_page'))
+    return no_cache(make_response(render_template('messages.html')))
+
+
+@main_bp.route('/messages/<int:bike_id>')
+def messages_bike(bike_id):
+    """Show messages for a specific bike conversation"""
+    uid = session.get('user_id')
+    if not uid:
+        return redirect(url_for('main.login_page'))
+    
+    # Get other_user_id from query param (when coming from bike detail page)
+    from flask import request
+    other_user_id = request.args.get('other_user_id', type=int)
+    
+    return no_cache(make_response(render_template('messages.html', bike_id=bike_id, other_user_id=other_user_id)))

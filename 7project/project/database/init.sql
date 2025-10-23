@@ -1,5 +1,3 @@
-
-
 -- Simple users table
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -35,3 +33,18 @@ INSERT INTO bikes (title, sale_price, rental_price, sale_type, model, descriptio
 ('Road bike', 500.00, 75.00, 'ambos', 'Giant TCR', 'High-end road bike', 'Excellent', 'https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=800&q=80', 3),
 ('E-bike', 1200.00, 180.00, 'ambos', 'Specialized Turbo', 'Long-lasting battery', 'New', 'https://images.unsplash.com/photo-1606229365484-9f4b31dadd4e?w=800&q=80', 1),
 ('Folding bike', 180.00, NULL, 'venta', 'Dahon Mariner', 'Ideal for public transport', 'Good', 'https://images.unsplash.com/photo-1595433707802-6b2626ef96f0?w=800&q=80', 2);
+
+-- Messages table for buyer-seller communication
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bike_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_bike_messages (bike_id, created_at),
+    INDEX idx_user_messages (sender_id, receiver_id)
+);

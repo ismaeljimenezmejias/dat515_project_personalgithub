@@ -195,8 +195,23 @@
 
   <script>
   const bikeId = Number(document.body.dataset.bikeId);
+  let currentUserId = null;
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        if (data.authenticated) {
+          currentUserId = data.user.id;
+        }
+      } catch (e) {
+        console.log('Not authenticated');
+      }
+    }
 
     async function loadBikeDetails() {
+      await checkAuth();
+      
       try {
         const res = await fetch('/api/bikes');
         const data = await res.json();
@@ -271,6 +286,11 @@
         // Botones de acción
         const actionsDiv = document.getElementById('action-buttons');
         let actionsHTML = '';
+        
+        // Check if user is not the owner - show Contact Seller button
+        if (currentUserId && currentUserId !== bike.owner_id) {
+          actionsHTML += `<a href="/messages/${bike.id}?other_user_id=${bike.owner_id}" class="btn btn-secondary" style="background:#17a2b8;">💬 Contact Seller</a>`;
+        }
         
         if (bike.sale_type === 'venta' || bike.sale_type === 'ambos') {
           actionsHTML += '<button class="btn btn-primary" onclick="alert(\'Contact seller feature coming soon!\')">💰 Buy Now</button>';

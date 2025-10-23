@@ -1,3 +1,7 @@
+# Copiar esto en la terminal local para copiar los archivos en la carpeta del escritorio
+# scp -r -o ProxyJump=jumphost ubuntu@VM-dat515:/home/ubuntu/ismaeljimenezmejias-labs/7project/project "C:\Users\ismae\OneDrive - UAM\Escritorio\dat515-project"
+
+
 from flask import Flask, jsonify
 import os
 from routes.health import health_bp
@@ -10,6 +14,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-change-me')
 
 # Disable template caching in development
+#esto era por el flickering
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 

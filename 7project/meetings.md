@@ -27,23 +27,26 @@ Prepare 3-5 questions and topics you want to discuss with your mentor.
 
 Cloud deployment
 Status: Open.
-#11 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+#11 
+
+First, should I deploy the database in postgresql (or whatever cloud platform) for exmample? and after that it's better to deploy the app with kubernetes with openstack? and when that's working should I deploy it in the google platform which i have credits insted of openstack? Is that a good understanding?
+Also, I don't know since I haven't tried it when I'm about to deploy it, if it will ask me which node will use as talos worker, as openstack did? Then it will be using the postgresql with de backend being controlled by some google cloud talos node?
+
 
 Error handling & robustness
 Status: Open.
-#10 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+#10 
 
 Authentication and Authorization
 Status: Open.
-#9 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
-
+#9 
 Location-based services (e.g., map integration)
 Status: Open.
-#8 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+#8
 
 In-app messaging between buyers and sellers
 Status: Open.
-#7 In dat515-2025/ismaeljimenezmejias-labs;· ismaeljimenezmejias opened yesterday
+#7 
 
 2. There's some flickering in the app I don't know where it comes from.
 3. 
