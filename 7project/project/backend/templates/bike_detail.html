@@ -155,7 +155,15 @@
 </head>
 <body data-bike-id="{{ bike_id }}">
   <div class="container">
-    <a href="/bikes" class="back-link">← Back to all bikes</a>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <a href="/bikes" class="back-link">← Back to all bikes</a>
+        <a href="/messages" class="back-link" style="margin-left:12px;">💬 Messages</a>
+      </div>
+      <div>
+        <!-- placeholder for potential owner actions -->
+      </div>
+    </div>
     
     <div id="loading" class="loading">Loading bike details...</div>
     <div id="error" class="error" style="display: none;"></div>
