@@ -3,45 +3,46 @@
     app:
       build: ./backend
       environment:
-        - DB_HOST=database
-        - DB_USER=webuser
-        - DB_PASSWORD=webpass
-        - DB_NAME=webapp
+        # - DB_HOST=database
+        # - DB_USER=webuser
+        # - DB_PASSWORD=webpass
+        # - DB_NAME=webapp
+        - DB_URL=postgresql://postgres:eKgRIQIGpJrdHjTKSyUNeqBpbhlWnTZM@nozomi.proxy.rlwy.net:15863/railway
         - REDIS_HOST=cache
       depends_on:
-        database:
-          condition: service_healthy
+        # database:
+        #   condition: service_healthy
         cache:
           condition: service_started
       restart: unless-stopped
       networks:
         - app-network
 
-    # Database
-    database:
-      image: mysql:8.0
-      environment:
-        # TODO: Set the database credentials
-        # These should match the environment variables in the app service
-        MYSQL_ROOT_PASSWORD: rootpassword
-        MYSQL_DATABASE: webapp
-        MYSQL_USER: webuser
-        MYSQL_PASSWORD: webpass
-      volumes:
-        - db_data:/var/lib/mysql
-        - ./database/init.sql:/docker-entrypoint-initdb.d/dockinit.sql
-      healthcheck:
-        # TODO: Add a health check for the database
-        # with appropriate parameters
-        test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
-        timeout: 10s
-        retries: 10
-        start_period: 120s
-        interval: 15s
-      restart: unless-stopped
-      networks:
-        # TODO: Add it to the same network as the application
-        - app-network
+    # # Database
+    # database:
+    #   image: mysql:8.0
+    #   environment:
+    #     # TODO: Set the database credentials
+    #     # These should match the environment variables in the app service
+    #     MYSQL_ROOT_PASSWORD: rootpassword
+    #     MYSQL_DATABASE: webapp
+    #     MYSQL_USER: webuser
+    #     MYSQL_PASSWORD: webpass
+    #   volumes:
+    #     - db_data:/var/lib/mysql
+    #     - ./database/init.sql:/docker-entrypoint-initdb.d/dockinit.sql
+    #   healthcheck:
+    #     # TODO: Add a health check for the database
+    #     # with appropriate parameters
+    #     test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+    #     timeout: 10s
+    #     retries: 10
+    #     start_period: 120s
+    #     interval: 15s
+    #   restart: unless-stopped
+    #   networks:
+    #     # TODO: Add it to the same network as the application
+    #     - app-network
 
     # Redis cache
     cache:
@@ -77,7 +78,7 @@
         - app-network
 
   volumes:
-    db_data:
+    # db_data:
     cache_data:
 
   networks:

@@ -1,14 +1,13 @@
 from flask import Blueprint, jsonify, request, session
 from db import get_connection
 from datetime import datetime
-import json
 
 data_bp = Blueprint('data', __name__)
 
 
 @data_bp.route('/api/data', methods=['GET', 'POST'])
 @data_bp.route('/api/bikes', methods=['GET', 'POST'])
-def data():
+def bikes():
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -19,8 +18,8 @@ def data():
             if not user_id:
                 return jsonify({'error': 'Authentication required'}), 401
             payload = request.get_json(silent=True) or {}
-            
-            # Validar campos requeridos
+
+            # Required/optional fields
             title = (payload.get('title') or '').strip()
             sale_price = payload.get('sale_price')
             rental_price = payload.get('rental_price')
@@ -29,38 +28,37 @@ def data():
             description = (payload.get('description') or '').strip()
             bike_condition = (payload.get('condition') or '').strip()
             image_url = (payload.get('image_url') or '').strip() or None
-            
+
             if not title:
                 return jsonify({'error': 'Title is required'}), 400
-            
-            # Calcular rental_price automáticamente si no se proporciona pero hay sale_price
+
+            # Auto-calc rental price when needed
             if sale_type in ['alquiler', 'ambos'] and sale_price and not rental_price:
                 rental_price = float(sale_price) * 0.15
-            
-            # Insertar en la tabla bikes
+
             cursor.execute(
-                """INSERT INTO bikes (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, owner_id, created_at) 
+                """INSERT INTO bikes (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, owner_id, created_at)
                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, user_id, datetime.now())
             )
             conn.commit()
-            return jsonify({'success': True, 'id': cursor.lastrowid}), 201
+            return jsonify({'success': True}), 201
 
-        # GET: obtener todas las bicis
-        filter_type = request.args.get('type')  # 'venta', 'alquiler', o None para todas
-        # Optional price filters
+        # GET bikes with optional filters
         def _to_float(val):
             try:
                 return float(val)
             except (TypeError, ValueError):
                 return None
+
+        filter_type = request.args.get('type')
         min_sale = _to_float(request.args.get('minSalePrice'))
         max_sale = _to_float(request.args.get('maxSalePrice'))
         min_rent = _to_float(request.args.get('minRentalPrice'))
         max_rent = _to_float(request.args.get('maxRentalPrice'))
         exclude_mine = request.args.get('excludeMine') in ('1', 'true', 'True')
-        user_id = session.get('user_id') if exclude_mine else None
-        search_text = request.args.get('search', '').strip()
+        user_id_ex = session.get('user_id') if exclude_mine else None
+        search_text = (request.args.get('search') or '').strip()
 
         base_sql = (
             "SELECT b.id, b.title, b.sale_price, b.rental_price, b.sale_type, b.model, "
@@ -72,17 +70,16 @@ def data():
         if filter_type and filter_type in ['venta', 'alquiler']:
             where.append("(b.sale_type = %s OR b.sale_type = 'ambos')")
             params.append(filter_type)
-        if user_id:
+        if user_id_ex:
             where.append("(b.owner_id IS NULL OR b.owner_id <> %s)")
-            params.append(user_id)
-        
-        # Text search in title, description, and owner name
+            params.append(user_id_ex)
+
         if search_text:
             where.append("(b.title LIKE %s OR b.description LIKE %s OR u.name LIKE %s)")
-            search_pattern = f"%{search_text}%"
-            params.extend([search_pattern, search_pattern, search_pattern])
+            like = f"%{search_text}%"
+            params.extend([like, like, like])
 
-        # Price filtering logic
+        # Price filters
         if filter_type == 'venta':
             if min_sale is not None:
                 where.append("b.sale_price IS NOT NULL AND b.sale_price >= %s")
@@ -98,47 +95,42 @@ def data():
                 where.append("b.rental_price IS NOT NULL AND b.rental_price <= %s")
                 params.append(max_rent)
         else:
-            # When viewing all, allow either sale OR rental to match if filters provided
             price_clauses = []
             price_params = []
-            sale_clause_parts = []
+            sale_parts = []
             if min_sale is not None:
-                sale_clause_parts.append("b.sale_price >= %s")
+                sale_parts.append("b.sale_price >= %s")
                 price_params.append(min_sale)
             if max_sale is not None:
-                sale_clause_parts.append("b.sale_price <= %s")
+                sale_parts.append("b.sale_price <= %s")
                 price_params.append(max_sale)
-            if sale_clause_parts:
-                price_clauses.append("(b.sale_price IS NOT NULL AND " + " AND ".join(sale_clause_parts) + ")")
+            if sale_parts:
+                price_clauses.append("(b.sale_price IS NOT NULL AND " + " AND ".join(sale_parts) + ")")
 
-            rent_clause_parts = []
+            rent_parts = []
             if min_rent is not None:
-                rent_clause_parts.append("b.rental_price >= %s")
+                rent_parts.append("b.rental_price >= %s")
                 price_params.append(min_rent)
             if max_rent is not None:
-                rent_clause_parts.append("b.rental_price <= %s")
+                rent_parts.append("b.rental_price <= %s")
                 price_params.append(max_rent)
-            if rent_clause_parts:
-                price_clauses.append("(b.rental_price IS NOT NULL AND " + " AND ".join(rent_clause_parts) + ")")
+            if rent_parts:
+                price_clauses.append("(b.rental_price IS NOT NULL AND " + " AND ".join(rent_parts) + ")")
 
             if price_clauses:
                 where.append("(" + " OR ".join(price_clauses) + ")")
                 params.extend(price_params)
+
         if where:
             base_sql += " WHERE " + " AND ".join(where)
         base_sql += " ORDER BY b.created_at DESC"
-        cursor.execute(base_sql, tuple(params))
 
+        cursor.execute(base_sql, tuple(params))
         rows = cursor.fetchall()
         bikes = []
         for row in rows:
             created_val = row[8]
-            created_str = None
-            if created_val:
-                if hasattr(created_val, 'isoformat'):
-                    created_str = created_val.isoformat()
-                else:
-                    created_str = str(created_val)
+            created_str = created_val.isoformat() if hasattr(created_val, 'isoformat') else str(created_val) if created_val else None
             bikes.append({
                 'id': row[0],
                 'title': row[1],
@@ -151,7 +143,7 @@ def data():
                 'created_at': created_str,
                 'owner_id': row[9],
                 'owner_name': row[10],
-                'image_url': row[11]
+                'image_url': row[11],
             })
 
         conn.close()
@@ -179,7 +171,6 @@ def login():
     name = str(name).strip()
     conn = get_connection()
     cur = conn.cursor()
-    # find or create
     cur.execute('SELECT id FROM users WHERE name=%s', (name,))
     row = cur.fetchone()
     if row:
@@ -202,24 +193,18 @@ def logout():
 
 @data_bp.route('/api/bikes/<int:bike_id>', methods=['DELETE'])
 def delete_bike(bike_id):
-    """Delete a bike (owner only)"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        
-        # Verify ownership
         cursor.execute('SELECT owner_id FROM bikes WHERE id = %s', (bike_id,))
         row = cursor.fetchone()
         if not row:
             return jsonify({'error': 'Bike not found'}), 404
         if row[0] != user_id:
             return jsonify({'error': 'Not authorized'}), 403
-        
-        # Delete
         cursor.execute('DELETE FROM bikes WHERE id = %s', (bike_id,))
         conn.commit()
         conn.close()
@@ -230,24 +215,10 @@ def delete_bike(bike_id):
 
 @data_bp.route('/api/bikes/<int:bike_id>', methods=['PUT'])
 def update_bike(bike_id):
-    """Update a bike (owner only)"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        # Verify ownership
-        cursor.execute('SELECT owner_id FROM bikes WHERE id = %s', (bike_id,))
-        row = cursor.fetchone()
-        if not row:
-            return jsonify({'error': 'Bike not found'}), 404
-        if row[0] != user_id:
-            return jsonify({'error': 'Not authorized'}), 403
-        
-        # Update fields
         payload = request.get_json(silent=True) or {}
         title = (payload.get('title') or '').strip()
         sale_price = payload.get('sale_price')
@@ -257,18 +228,18 @@ def update_bike(bike_id):
         description = (payload.get('description') or '').strip()
         bike_condition = (payload.get('condition') or '').strip()
         image_url = (payload.get('image_url') or '').strip() or None
-        
+
         if not title:
             return jsonify({'error': 'Title is required'}), 400
-        
-        # Auto-calculate rental if needed
+
         if sale_type in ['alquiler', 'ambos'] and sale_price and not rental_price:
             rental_price = float(sale_price) * 0.15
-        
+
+        conn = get_connection()
+        cursor = conn.cursor()
         cursor.execute(
-            """UPDATE bikes SET title=%s, sale_price=%s, rental_price=%s, sale_type=%s, 
-               model=%s, description=%s, bike_condition=%s, image_url=%s 
-               WHERE id=%s""",
+            """UPDATE bikes SET title=%s, sale_price=%s, rental_price=%s, sale_type=%s,
+               model=%s, description=%s, bike_condition=%s, image_url=%s WHERE id=%s""",
             (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, bike_id)
         )
         conn.commit()
@@ -278,42 +249,31 @@ def update_bike(bike_id):
         return jsonify({'error': str(e)}), 500
 
 
-# ============== MESSAGING ENDPOINTS ==============
-
 @data_bp.route('/api/messages', methods=['POST'])
 def send_message():
-    """Send a message about a bike"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
     try:
         payload = request.get_json(silent=True) or {}
         bike_id = payload.get('bike_id')
         receiver_id = payload.get('receiver_id')
         content = (payload.get('content') or '').strip()
-        
         if not bike_id or not receiver_id or not content:
             return jsonify({'error': 'bike_id, receiver_id, and content are required'}), 400
-        
         conn = get_connection()
         cursor = conn.cursor()
-        
-        # Verify bike exists
         cursor.execute('SELECT id FROM bikes WHERE id = %s', (bike_id,))
         if not cursor.fetchone():
             return jsonify({'error': 'Bike not found'}), 404
-        
-        # Insert message
         cursor.execute(
-            """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at) 
+            """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at)
                VALUES (%s, %s, %s, %s, %s)""",
             (bike_id, user_id, receiver_id, content, datetime.now())
         )
         conn.commit()
         message_id = cursor.lastrowid
         conn.close()
-        
         return jsonify({'ok': True, 'message_id': message_id}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -321,16 +281,12 @@ def send_message():
 
 @data_bp.route('/api/messages/bike/<int:bike_id>', methods=['GET'])
 def get_bike_messages(bike_id):
-    """Get all messages for a specific bike (only participants can see them)"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        
-        # Get messages where user is sender or receiver
         cursor.execute(
             """SELECT m.id, m.bike_id, m.sender_id, m.receiver_id, m.content, m.created_at,
                       sender.name as sender_name, receiver.name as receiver_name
@@ -341,24 +297,16 @@ def get_bike_messages(bike_id):
                ORDER BY m.created_at ASC""",
             (bike_id, user_id, user_id)
         )
-        
         rows = cursor.fetchall()
         messages = []
         for row in rows:
             created_val = row[5]
             created_str = created_val.isoformat() if hasattr(created_val, 'isoformat') else str(created_val)
             messages.append({
-                'id': row[0],
-                'bike_id': row[1],
-                'sender_id': row[2],
-                'receiver_id': row[3],
-                'content': row[4],
-                'created_at': created_str,
-                'sender_name': row[6],
-                'receiver_name': row[7],
+                'id': row[0], 'bike_id': row[1], 'sender_id': row[2], 'receiver_id': row[3],
+                'content': row[4], 'created_at': created_str, 'sender_name': row[6], 'receiver_name': row[7],
                 'is_mine': row[2] == user_id
             })
-        
         conn.close()
         return jsonify({'messages': messages})
     except Exception as e:
@@ -367,22 +315,18 @@ def get_bike_messages(bike_id):
 
 @data_bp.route('/api/messages/conversations', methods=['GET'])
 def get_conversations():
-    """Get list of conversations (unique bike+user pairs) for current user"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        
-        # Get unique conversations with latest message
         cursor.execute(
             """SELECT DISTINCT 
                    m.bike_id,
                    b.title as bike_title,
                    b.image_url,
-                   IF(m.sender_id = %s, m.receiver_id, m.sender_id) as other_user_id,
+                   CASE WHEN m.sender_id = %s THEN m.receiver_id ELSE m.sender_id END as other_user_id,
                    u.name as other_user_name,
                    (SELECT content FROM messages m2 
                     WHERE m2.bike_id = m.bike_id 
@@ -394,12 +338,11 @@ def get_conversations():
                     ORDER BY m2.created_at DESC LIMIT 1) as last_message_at
                FROM messages m
                JOIN bikes b ON m.bike_id = b.id
-               JOIN users u ON IF(m.sender_id = %s, m.receiver_id, m.sender_id) = u.id
+               JOIN users u ON CASE WHEN m.sender_id = %s THEN m.receiver_id ELSE m.sender_id END = u.id
                WHERE m.sender_id = %s OR m.receiver_id = %s
                ORDER BY last_message_at DESC""",
             (user_id, user_id, user_id, user_id, user_id, user_id, user_id, user_id)
         )
-        
         rows = cursor.fetchall()
         conversations = []
         for row in rows:
@@ -414,7 +357,6 @@ def get_conversations():
                 'last_message': row[5],
                 'last_message_at': last_msg_str
             })
-        
         conn.close()
         return jsonify({'conversations': conversations})
     except Exception as e:

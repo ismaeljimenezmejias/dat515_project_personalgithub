@@ -11,18 +11,23 @@ WORKDIR /app
 COPY requirements.txt .   
 RUN pip install --no-cache-dir -r requirements.txt
 
-# TODO: Copy application to /app
+# Copy application to /app
 COPY . . 
+
+# Copy and make entrypoint executable
+COPY entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
 
 # Create non-root user and switch to it
 RUN useradd -r -s /bin/false appuser
 USER appuser
 
-# TODO: Expose the port your application runs on
+# Expose the port your application runs on
 EXPOSE 5000 
 
-# TODO: Health check to ensure the application is running
+# Health check to ensure the application is running
 HEALTHCHECK --interval=10s --timeout=3s --retries=10 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=2)" || exit 1
-  
-CMD ["python", "app.py"]
+
+# Use entrypoint script which will initialize DB (idempotent) then start the app
+ENTRYPOINT ["./entrypoint.sh"]
