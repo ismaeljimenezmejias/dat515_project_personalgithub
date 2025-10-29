@@ -4,3 +4,4 @@ mysql-connector-python==8.1.0
 redis==4.6.0
 psycopg2-binary #Para postgresql database
 python-dotenv
+Flask-Session==0.5.0

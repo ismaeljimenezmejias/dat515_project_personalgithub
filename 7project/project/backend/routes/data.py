@@ -1,8 +1,46 @@
 from flask import Blueprint, jsonify, request, session
 from db import get_connection
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 data_bp = Blueprint('data', __name__)
+
+
+def _require_valid_user():
+    """
+    Ensure the session user exists in DB. This handles the case where the
+    database was reset after the user logged in and the session still holds
+    a stale user_id. If a session name exists, try to (re)create the user.
+    Returns: (user_id, error_response)
+      - user_id: int when valid, else None
+      - error_response: a Flask response tuple (json, status) when invalid
+    """
+    uid = session.get('user_id')
+    name = session.get('user_name')
+    if not uid:
+        return None, (jsonify({'error': 'Authentication required'}), 401)
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id FROM users WHERE id=%s', (uid,))
+        row = cur.fetchone()
+        if row:
+            conn.close()
+            return uid, None
+        # user id missing in DB -> try recreate if we have the name
+        if name:
+            cur.execute('INSERT INTO users (name, created_at) VALUES (%s, %s) RETURNING id', (name, datetime.now()))
+            new_id = cur.fetchone()[0]
+            conn.commit()
+            conn.close()
+            session['user_id'] = new_id
+            return new_id, None
+        conn.close()
+    except Exception:
+        # fall through to auth required
+        pass
+    session.clear()
+    return None, (jsonify({'error': 'Authentication required'}), 401)
 
 
 @data_bp.route('/api/data', methods=['GET', 'POST'])
@@ -14,9 +52,9 @@ def bikes():
 
         if request.method == 'POST':
             # Require login
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Authentication required'}), 401
+            user_id, err = _require_valid_user()
+            if err:
+                return err
             payload = request.get_json(silent=True) or {}
 
             # Required/optional fields
@@ -163,26 +201,65 @@ def me():
     })
 
 
-@data_bp.route('/api/login', methods=['POST'])
-def login():
-    name = (request.json or {}).get('name')
-    if not name or not str(name).strip():
-        return jsonify({'error': 'Name is required'}), 400
-    name = str(name).strip()
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT id FROM users WHERE name=%s', (name,))
-    row = cur.fetchone()
-    if row:
-        user_id = row[0]
-    else:
-        cur.execute('INSERT INTO users (name, created_at) VALUES (%s, %s) RETURNING id', (name, datetime.now()))
+@data_bp.route('/api/signup', methods=['POST'])
+def signup():
+    payload = request.get_json(silent=True) or {}
+    name = (payload.get('name') or '').strip()
+    password = (payload.get('password') or '').strip()
+    if not name or not password:
+        return jsonify({'error': 'name and password are required'}), 400
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id FROM users WHERE name=%s', (name,))
+        if cur.fetchone():
+            conn.close()
+            return jsonify({'error': 'User already exists'}), 409
+        pwd_hash = generate_password_hash(password)
+        cur.execute('INSERT INTO users (name, password_hash, created_at) VALUES (%s, %s, %s) RETURNING id', (name, pwd_hash, datetime.now()))
         user_id = cur.fetchone()[0]
         conn.commit()
-    conn.close()
-    session['user_id'] = user_id
-    session['user_name'] = name
-    return jsonify({'ok': True, 'user': {'id': user_id, 'name': name}})
+        conn.close()
+        session['user_id'] = user_id
+        session['user_name'] = name
+        return jsonify({'ok': True, 'user': {'id': user_id, 'name': name}}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@data_bp.route('/api/login', methods=['POST'])
+def login():
+    payload = request.get_json(silent=True) or {}
+    name = (payload.get('name') or '').strip()
+    password = (payload.get('password') or '').strip()
+    if not name:
+        return jsonify({'error': 'Name is required'}), 400
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id, password_hash FROM users WHERE name=%s', (name,))
+        row = cur.fetchone()
+        if not row:
+            conn.close()
+            return jsonify({'error': 'User not found'}), 404
+        user_id, pwd_hash = row[0], row[1]
+        if pwd_hash:
+            if not password or not check_password_hash(pwd_hash, password):
+                return jsonify({'error': 'Invalid credentials'}), 401
+        else:
+            # Legacy users without password: allow login without password
+            if password:
+                # If they sent a password, upgrade to hashed password
+                new_hash = generate_password_hash(password)
+                cur2 = conn.cursor()
+                cur2.execute('UPDATE users SET password_hash=%s WHERE id=%s', (new_hash, user_id))
+                conn.commit()
+        conn.close()
+        session['user_id'] = user_id
+        session['user_name'] = name
+        return jsonify({'ok': True, 'user': {'id': user_id, 'name': name}})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @data_bp.route('/api/logout', methods=['POST'])
@@ -193,9 +270,9 @@ def logout():
 
 @data_bp.route('/api/bikes/<int:bike_id>', methods=['DELETE'])
 def delete_bike(bike_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Authentication required'}), 401
+    user_id, err = _require_valid_user()
+    if err:
+        return err
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -215,9 +292,9 @@ def delete_bike(bike_id):
 
 @data_bp.route('/api/bikes/<int:bike_id>', methods=['PUT'])
 def update_bike(bike_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Authentication required'}), 401
+    user_id, err = _require_valid_user()
+    if err:
+        return err
     try:
         payload = request.get_json(silent=True) or {}
         title = (payload.get('title') or '').strip()
@@ -251,9 +328,9 @@ def update_bike(bike_id):
 
 @data_bp.route('/api/messages', methods=['POST'])
 def send_message():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Authentication required'}), 401
+    user_id, err = _require_valid_user()
+    if err:
+        return err
     try:
         payload = request.get_json(silent=True) or {}
         bike_id = payload.get('bike_id')
@@ -263,6 +340,11 @@ def send_message():
             return jsonify({'error': 'bike_id, receiver_id, and content are required'}), 400
         conn = get_connection()
         cursor = conn.cursor()
+        # Validate receiver exists
+        cursor.execute('SELECT id FROM users WHERE id=%s', (receiver_id,))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({'error': 'Receiver not found'}), 400
         cursor.execute('SELECT id FROM bikes WHERE id = %s', (bike_id,))
         if not cursor.fetchone():
             return jsonify({'error': 'Bike not found'}), 404

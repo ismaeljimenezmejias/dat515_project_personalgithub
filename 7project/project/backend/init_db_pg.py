@@ -9,7 +9,8 @@ DROP TABLE IF EXISTS users CASCADE;
 -- Users
 CREATE TABLE users (
   id          BIGSERIAL PRIMARY KEY,
-  name        TEXT NOT NULL,
+  name        TEXT NOT NULL UNIQUE,
+  password_hash TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -44,6 +45,7 @@ CREATE INDEX idx_messages_bike_created_at ON messages(bike_id, created_at);
 """
 
 SEED = """
+-- Demo users without passwords (for dev). You may add password_hash later.
 INSERT INTO users (name) VALUES ('Alice'), ('Bob'), ('Charlie');
 
 INSERT INTO bikes (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, owner_id)

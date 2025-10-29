@@ -17,28 +17,34 @@
 </head>
 <body>
   <div class="card">
-    <h1>Login</h1>
-    <p class="note">Just enter a display name for now. No password required.</p>
-    <label for="name">Display name</label>
-    <input id="name" placeholder="e.g., Alice" />
+    <h1>Login / Sign up</h1>
+    <p class="note">Enter a name and password. Use Sign up the first time.</p>
+    <label for="name">Name</label>
+    <input id="name" placeholder="e.g., alice" />
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="••••••" />
     <div>
       <button id="loginBtn">Login</button>
+      <button id="signupBtn" style="margin-left:.5rem;background:#28a745">Sign up</button>
       <span id="status"></span>
     </div>
   </div>
   <script>
-    document.getElementById('loginBtn').addEventListener('click', async ()=>{
+    async function callApi(path){
       const name = document.getElementById('name').value.trim();
+      const password = document.getElementById('password').value;
       if(!name){ alert('Name is required'); return; }
-      const res = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name})});
+      const res = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, password})});
       const json = await res.json();
       if(res.ok){
         window.location.href = '/';
       }else{
-        document.getElementById('status').textContent = json.error || 'Login failed';
+        document.getElementById('status').textContent = json.error || 'Request failed';
         document.getElementById('status').className = 'error';
       }
-    });
+    }
+    document.getElementById('loginBtn').addEventListener('click', ()=>callApi('/api/login'));
+    document.getElementById('signupBtn').addEventListener('click', ()=>callApi('/api/signup'));
   </script>
 </body>
 </html>
