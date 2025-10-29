@@ -119,6 +119,13 @@
       <button onclick="loadBikes()" class="btn-refresh">🔄 Refresh</button>
     </div>
 
+    <div class="filters" style="margin-top:8px">
+      <strong>Near me:</strong>
+      <input type="number" id="radiusKm" placeholder="Radius (km)" min="1" value="10" style="width:120px" />
+      <button onclick="getLocationAndFilter()">📍 Use my location</button>
+      <span id="nearStatus" style="color:#666"></span>
+    </div>
+
     <table id="bikeTable">
       <thead>
         <tr>
@@ -140,6 +147,7 @@
   <script>
     let currentFilter = 'all';
     let lastQueryUrl = '';
+    let myLat = null, myLon = null;
 
     async function loadBikes() {
   const params = new URLSearchParams();
@@ -156,7 +164,20 @@
       const res = await fetch(url);
       const data = await res.json();
       const tbody = document.querySelector('#bikeTable tbody');
-      const bikes = data.bikes || [];
+      let bikes = data.bikes || [];
+
+      // Optional near-me filter (client-side)
+      const radius = Number(document.getElementById('radiusKm').value || '0');
+      if (myLat != null && myLon != null && radius > 0) {
+        const R = 6371; // km
+        const toRad = d => d * Math.PI / 180;
+        const dist = (lat1, lon1, lat2, lon2) => {
+          const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+          const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+          return 2 * R * Math.asin(Math.sqrt(a));
+        };
+        bikes = bikes.filter(b => (b.latitude != null && b.longitude != null) && dist(myLat, myLon, b.latitude, b.longitude) <= radius);
+      }
 
       if (bikes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">No bikes published yet</td></tr>';
@@ -213,6 +234,23 @@
       });
       document.getElementById('filter-' + type).classList.add('active');
       loadBikes();
+    }
+
+    function getLocationAndFilter(){
+      const status = document.getElementById('nearStatus');
+      status.textContent = 'Requesting location…';
+      if (!navigator.geolocation){ status.textContent = 'Geolocation not supported'; return; }
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          myLat = pos.coords.latitude; myLon = pos.coords.longitude;
+          status.textContent = `Using ${myLat.toFixed(3)}, ${myLon.toFixed(3)}`;
+          loadBikes();
+        },
+        (err)=>{
+          status.textContent = 'Unable to get location';
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
     }
 
     // Search applies on Enter or change
