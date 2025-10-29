@@ -66,6 +66,9 @@ def bikes():
             description = (payload.get('description') or '').strip()
             bike_condition = (payload.get('condition') or '').strip()
             image_url = (payload.get('image_url') or '').strip() or None
+            location_name = (payload.get('location_name') or '').strip() or None
+            latitude = payload.get('latitude')
+            longitude = payload.get('longitude')
 
             if not title:
                 return jsonify({'error': 'Title is required'}), 400
@@ -75,9 +78,9 @@ def bikes():
                 rental_price = float(sale_price) * 0.15
 
             cursor.execute(
-                """INSERT INTO bikes (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, owner_id, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, user_id, datetime.now())
+                     """INSERT INTO bikes (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, owner_id, created_at, location_name, latitude, longitude)
+                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                     (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, user_id, datetime.now(), location_name, latitude, longitude)
             )
             conn.commit()
             return jsonify({'success': True}), 201
@@ -100,7 +103,7 @@ def bikes():
 
         base_sql = (
             "SELECT b.id, b.title, b.sale_price, b.rental_price, b.sale_type, b.model, "
-            "b.description, b.bike_condition, b.created_at, b.owner_id, u.name as owner_name, b.image_url "
+            "b.description, b.bike_condition, b.created_at, b.owner_id, u.name as owner_name, b.image_url, b.location_name, b.latitude, b.longitude "
             "FROM bikes b LEFT JOIN users u ON b.owner_id = u.id"
         )
         where = []
@@ -182,6 +185,9 @@ def bikes():
                 'owner_id': row[9],
                 'owner_name': row[10],
                 'image_url': row[11],
+                'location_name': row[12],
+                'latitude': float(row[13]) if row[13] is not None else None,
+                'longitude': float(row[14]) if row[14] is not None else None,
             })
 
         conn.close()
@@ -304,7 +310,10 @@ def update_bike(bike_id):
         model = (payload.get('model') or '').strip()
         description = (payload.get('description') or '').strip()
         bike_condition = (payload.get('condition') or '').strip()
-        image_url = (payload.get('image_url') or '').strip() or None
+    image_url = (payload.get('image_url') or '').strip() or None
+    location_name = (payload.get('location_name') or '').strip() or None
+    latitude = payload.get('latitude')
+    longitude = payload.get('longitude')
 
         if not title:
             return jsonify({'error': 'Title is required'}), 400
@@ -315,9 +324,9 @@ def update_bike(bike_id):
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            """UPDATE bikes SET title=%s, sale_price=%s, rental_price=%s, sale_type=%s,
-               model=%s, description=%s, bike_condition=%s, image_url=%s WHERE id=%s""",
-            (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, bike_id)
+                """UPDATE bikes SET title=%s, sale_price=%s, rental_price=%s, sale_type=%s,
+                    model=%s, description=%s, bike_condition=%s, image_url=%s, location_name=%s, latitude=%s, longitude=%s WHERE id=%s""",
+                (title, sale_price, rental_price, sale_type, model, description, bike_condition, image_url, location_name, latitude, longitude, bike_id)
         )
         conn.commit()
         conn.close()

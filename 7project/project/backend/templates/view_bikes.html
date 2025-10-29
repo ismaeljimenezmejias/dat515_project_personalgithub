@@ -128,6 +128,7 @@
           <th>Model</th>
           <th>Price (NOK)</th>
           <th>Owner</th>
+          <th>Location</th>
           <th>Condition</th>
           <th>Actions</th>
         </tr>
@@ -197,6 +198,7 @@
             <td>${bike.model || '—'}</td>
             <td>${priceDisplay}</td>
             <td>${bike.owner_id ? `<a href='/user/${bike.owner_id}' onclick=\"event.stopPropagation()\">${bike.owner_name || ('User #' + bike.owner_id)}</a>` : '—'}</td>
+            <td>${bike.location_name || (bike.latitude && bike.longitude ? (bike.latitude.toFixed(3)+', '+bike.longitude.toFixed(3)) : '—')}</td>
             <td>${bike.condition || '—'}</td>
             <td>${actionButtons}</td>
           </tr>

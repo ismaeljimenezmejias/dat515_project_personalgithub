@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <title>Bike Details</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -151,6 +152,7 @@
       border: 1px solid #ddd;
       margin-bottom: 1rem;
     }
+    #map { height: 280px; border-radius: 8px; border: 1px solid #ddd; margin-top: 12px; }
   </style>
 </head>
 <body data-bike-id="{{ bike_id }}">
@@ -195,6 +197,14 @@
       <div class="description">
         <strong>Description:</strong>
         <p id="bike-description"></p>
+      </div>
+
+      <div id="location-block" class="detail-section" style="display:none;">
+        <div class="detail-row">
+          <div class="detail-label">Location:</div>
+          <div class="detail-value" id="bike-location"></div>
+        </div>
+        <div id="map"></div>
       </div>
 
       <div class="action-buttons" id="action-buttons"></div>
@@ -318,6 +328,30 @@
     }
 
     loadBikeDetails();
+  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    // After bike data is loaded, if coordinates present, render a map
+    const origLoad = loadBikeDetails;
+    loadBikeDetails = async function(){
+      await origLoad();
+      try {
+        const res = await fetch('/api/bikes');
+        const data = await res.json();
+        const bike = (data.bikes||[]).find(b => b.id === bikeId);
+        if (!bike) return;
+        if (bike.latitude != null && bike.longitude != null) {
+          document.getElementById('location-block').style.display = 'block';
+          document.getElementById('bike-location').textContent = bike.location_name || `${bike.latitude.toFixed(5)}, ${bike.longitude.toFixed(5)}`;
+          const map = L.map('map').setView([bike.latitude, bike.longitude], 13);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(map);
+          L.marker([bike.latitude, bike.longitude]).addTo(map);
+        }
+      } catch {}
+    }
   </script>
 </body>
 </html>
