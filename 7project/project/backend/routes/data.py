@@ -234,6 +234,8 @@ def login():
     password = (payload.get('password') or '').strip()
     if not name:
         return jsonify({'error': 'Name is required'}), 400
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
     try:
         conn = get_connection()
         cur = conn.cursor()
@@ -241,19 +243,17 @@ def login():
         row = cur.fetchone()
         if not row:
             conn.close()
-            return jsonify({'error': 'User not found'}), 404
+            return jsonify({'error': 'User not found. Please sign up.'}), 404
         user_id, pwd_hash = row[0], row[1]
         if pwd_hash:
-            if not password or not check_password_hash(pwd_hash, password):
+            if not check_password_hash(pwd_hash, password):
                 return jsonify({'error': 'Invalid credentials'}), 401
         else:
-            # Legacy users without password: allow login without password
-            if password:
-                # If they sent a password, upgrade to hashed password
-                new_hash = generate_password_hash(password)
-                cur2 = conn.cursor()
-                cur2.execute('UPDATE users SET password_hash=%s WHERE id=%s', (new_hash, user_id))
-                conn.commit()
+            # Legacy user with no password: require one now and set it
+            new_hash = generate_password_hash(password)
+            cur2 = conn.cursor()
+            cur2.execute('UPDATE users SET password_hash=%s WHERE id=%s', (new_hash, user_id))
+            conn.commit()
         conn.close()
         session['user_id'] = user_id
         session['user_name'] = name

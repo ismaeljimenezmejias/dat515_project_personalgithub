@@ -8,6 +8,7 @@ from routes.health import health_bp
 from routes.data import data_bp
 from routes.main import main_bp
 from db import get_connection
+from migrations import ensure_schema
 import time
 import logging
 from redis_client import get_redis
@@ -20,6 +21,12 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-change-me')
 #esto era por el flickering
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+# Ensure minimal schema adjustments (idempotent)
+try:
+    ensure_schema()
+except Exception as _e:
+    logging.warning("Schema ensure failed or not required: %s", _e)
 
 # Registrar blueprints
 app.register_blueprint(health_bp)
