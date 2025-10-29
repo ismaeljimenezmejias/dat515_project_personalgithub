@@ -61,10 +61,10 @@ High-level architecture, main components, interactions, and data flow. Include a
 Final architecture
 ```mermaid
 graph TD
-  Browser[Browser] --> Web[Flask (Gunicorn)]
-  Web -->|SQL| Postgres[(PostgreSQL - Railway)]
-  Web -->|Sessions| Redis[(Redis - Railway)]
-  Browser -->|Maps & Geocoding| OSM[Leaflet + Nominatim]
+  Browser[Browser] --> Web[Flask + Gunicorn]
+  Web -->|SQL| Postgres[(PostgreSQL on Railway)]
+  Web -->|Sessions| Redis[(Redis on Railway)]
+  Browser -->|Maps and Geocoding| OSM[Leaflet + Nominatim]
 ```
 
 Architecture in local
@@ -169,7 +169,7 @@ flowchart LR
   USER -->|owns| BIKE
   USER -->|sends| MESSAGE
   MESSAGE -->|to| USER
-  MESSAGE -->|about (optional)| BIKE
+  MESSAGE -->|about optional| BIKE
 ```
 
 
@@ -217,7 +217,7 @@ Current implementation stack.
 
 | Technology / Service | Role / Where Used | Why chosen (brief) | Alternatives considered |
 |----------------------|-------------------|--------------------|-------------------------|
-| Python 3.x | Backend language | Simple, good ecosystem for web | Node.js, Go |
+| Python 3.11.5 | Backend language | Simple, good ecosystem for web | Node.js, Go |
 | Flask | Backend web framework and REST API | Lightweight, quick to develop | Django, FastAPI |
 | Jinja2 | HTML templating (server-side rendering) | Built-in with Flask | React, Vue (client-side) |
 | Flask-Session | Server-side sessions | Integrates with Redis backend | Custom session stores |
@@ -226,7 +226,6 @@ Current implementation stack.
 | psycopg2-binary | Python PostgreSQL driver | Mature driver | asyncpg |
 | Leaflet + Nominatim | Maps and geocoding (client) | Open-source, easy to integrate | Google Maps, Mapbox |
 | Docker | Container runtime | Consistent environments | Podman |
-| Docker Compose | Local orchestration | One-file dev setup | Kubernetes |
 | Railway | Managed deployment (web, Postgres, Redis) | Simple cloud hosting | Fly.io, Render |
 | GitHub / Git | Version control | Standard tooling | GitLab, Bitbucket |
 
