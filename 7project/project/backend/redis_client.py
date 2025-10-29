@@ -2,11 +2,15 @@ import redis
 import os
 
 def get_redis():
-    """Return a Redis client if REDIS_URL/REDIS_HOST is configured; otherwise None."""
+    """Return a Redis client if REDIS_URL/REDIS_HOST is configured; otherwise None.
+    Note: decode_responses must be False for Flask-Session because it stores
+    pickled binary data; forcing UTF-8 decoding causes UnicodeDecodeError (0x80).
+    """
     url = os.getenv('REDIS_URL', '').strip()
     if url:
         try:
-            return redis.from_url(url, decode_responses=True)
+            # Do NOT set decode_responses=True; session values are binary (pickle)
+            return redis.from_url(url)
         except Exception:
             return None
     host = os.getenv('REDIS_HOST', '').strip()
@@ -14,4 +18,5 @@ def get_redis():
         return None
     port = int(os.getenv('REDIS_PORT', '6379'))
     password = os.getenv('REDIS_PASSWORD') or None
-    return redis.Redis(host=host, port=port, password=password, decode_responses=True)
+    # Do NOT set decode_responses=True; session values are binary (pickle)
+    return redis.Redis(host=host, port=port, password=password)
