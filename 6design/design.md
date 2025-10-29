@@ -127,20 +127,14 @@ Geocoding
 - Reverse geocoding: obtain a place name/address from coordinates.
 - We use Nominatim (OpenStreetMap) from the client and Leaflet to show/select positions and enable "Near me".
 
-Request flow (stateless web, external state)
+Request flow 
 
 ```mermaid
-sequenceDiagram
-  participant B as Browser
-  participant W as Web (Flask/Gunicorn)
-  participant R as Redis (Sessions)
-  participant P as PostgreSQL (DB)
-  B->>W: GET /publish (cookie: session_id)
-  W->>R: Fetch session_id
-  R-->>W: Session data
-  W->>P: Query user/bikes
-  P-->>W: Rows
-  W-->>B: HTML page
+flowchart LR
+  B[Browser] --> W[Flask + Gunicorn]
+  W --> R[Redis sessions]
+  W --> P[PostgreSQL]
+  W --> B
 ```
 
 
@@ -201,7 +195,6 @@ Endpoints implemented (highlights):
 | `GET`      | `/health`           | Service health (DB and Redis checks)                                | ✅ Implemented |
 | `POST`     | `/api/transactions` | Create a purchase transaction               |  Planned |
 | `POST`     | `/api/rentals`      | Register a rental                           |  Planned |
-| `GET`      | `/api/users/{id}`   | Get user profile (API form)                 |  Planned |
 
 Routing model: pages vs API
 
