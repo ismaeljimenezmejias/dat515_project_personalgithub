@@ -310,10 +310,10 @@ def update_bike(bike_id):
         model = (payload.get('model') or '').strip()
         description = (payload.get('description') or '').strip()
         bike_condition = (payload.get('condition') or '').strip()
-    image_url = (payload.get('image_url') or '').strip() or None
-    location_name = (payload.get('location_name') or '').strip() or None
-    latitude = payload.get('latitude')
-    longitude = payload.get('longitude')
+        image_url = (payload.get('image_url') or '').strip() or None
+        location_name = (payload.get('location_name') or '').strip() or None
+        latitude = payload.get('latitude')
+        longitude = payload.get('longitude')
 
         if not title:
             return jsonify({'error': 'Title is required'}), 400
