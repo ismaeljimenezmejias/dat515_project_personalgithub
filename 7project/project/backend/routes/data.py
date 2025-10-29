@@ -176,9 +176,9 @@ def login():
     if row:
         user_id = row[0]
     else:
-        cur.execute('INSERT INTO users (name, created_at) VALUES (%s, %s)', (name, datetime.now()))
+        cur.execute('INSERT INTO users (name, created_at) VALUES (%s, %s) RETURNING id', (name, datetime.now()))
+        user_id = cur.fetchone()[0]
         conn.commit()
-        user_id = cur.lastrowid
     conn.close()
     session['user_id'] = user_id
     session['user_name'] = name
@@ -268,11 +268,11 @@ def send_message():
             return jsonify({'error': 'Bike not found'}), 404
         cursor.execute(
             """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at)
-               VALUES (%s, %s, %s, %s, %s)""",
+               VALUES (%s, %s, %s, %s, %s) RETURNING id""",
             (bike_id, user_id, receiver_id, content, datetime.now())
         )
+        message_id = cursor.fetchone()[0]
         conn.commit()
-        message_id = cursor.lastrowid
         conn.close()
         return jsonify({'ok': True, 'message_id': message_id}), 201
     except Exception as e:

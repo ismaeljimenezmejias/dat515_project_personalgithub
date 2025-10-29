@@ -24,12 +24,13 @@ app.register_blueprint(data_bp)
 app.register_blueprint(main_bp) #For now saving index and about htmls.
 
 if __name__ == '__main__':
-    # Esperar a que la DB esté lista
+    # Esperar a que la DB esté lista (solo para local/dev)
     for _ in range(30):
         try:
             conn = get_connection()
             conn.close()
             break
-        except:
+        except Exception:
             time.sleep(1)
-    app.run(host='0.0.0.0', port=5000)
+    # Bind al puerto de entorno (Cloud Run establece PORT)
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)))

@@ -1,10 +1,10 @@
 FROM python:3.9-slim
 
-# Install system dependencies
+# Minimal system deps
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    default-mysql-client \
-    && rm -rf /var/lib/apt/lists/*
+  apt-get install -y --no-install-recommends \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app 
 # TODO: Copy requirements.txt and install Python packages
@@ -22,12 +22,12 @@ RUN chmod +x ./entrypoint.sh
 RUN useradd -r -s /bin/false appuser
 USER appuser
 
-# Expose the port your application runs on
-EXPOSE 5000 
+# Expose the port (Cloud Run defaults to 8080)
+EXPOSE 8080 
 
-# Health check to ensure the application is running
+# Optional local healthcheck (Cloud Run ignores Dockerfile healthchecks)
 HEALTHCHECK --interval=10s --timeout=3s --retries=10 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=2)" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)" || exit 1
 
 # Use entrypoint script which will initialize DB (idempotent) then start the app
 ENTRYPOINT ["./entrypoint.sh"]

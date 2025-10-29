@@ -1,4 +1,6 @@
 flask==2.3.3
+gunicorn
 mysql-connector-python==8.1.0
 redis==4.6.0
 psycopg2-binary #Para postgresql database
+python-dotenv

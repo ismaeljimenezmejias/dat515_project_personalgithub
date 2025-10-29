@@ -16,12 +16,15 @@ def health():
 
     try:
         r = get_redis()
-        r.ping()
-        cache_status = 'healthy'
-    except:
+        if r is None:
+            cache_status = 'unconfigured'
+        else:
+            r.ping()
+            cache_status = 'healthy'
+    except Exception:
         cache_status = 'unhealthy'
 
-    status = 'healthy' if db_status == 'healthy' and cache_status == 'healthy' else 'unhealthy'
+    status = 'healthy' if db_status == 'healthy' and cache_status in ('healthy', 'unconfigured') else 'unhealthy'
     return jsonify({
         'status': status,
         'database': db_status,

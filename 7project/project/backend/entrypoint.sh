@@ -1,13 +1,18 @@
 #!/bin/sh
 set -e
 
-# Simple entrypoint: run DB init once (idempotent) then start the app.
-echo "Running DB init (idempotent)..."
-if python init_db_pg.py; then
-  echo "DB init completed."
+# Only run destructive DB init when explicitly enabled
+if [ "${INIT_DB_ON_START}" = "true" ]; then
+  echo "INIT_DB_ON_START=true -> Running destructive DB init..."
+  if python init_db_pg.py; then
+    echo "DB init completed."
+  else
+    echo "DB init failed or DB not reachable; continuing to start the app."
+  fi
 else
-  echo "DB init failed or DB not reachable; continuing to start the app."
+  echo "Skipping DB init (INIT_DB_ON_START not true)."
 fi
 
-echo "Starting app..."
-exec python app.py
+PORT_TO_BIND="${PORT:-5000}"
+echo "Starting app with gunicorn on port ${PORT_TO_BIND}..."
+exec gunicorn -w 2 -k gthread -t 0 -b 0.0.0.0:${PORT_TO_BIND} app:app
