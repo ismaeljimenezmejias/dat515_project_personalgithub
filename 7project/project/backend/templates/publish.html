@@ -178,8 +178,13 @@
     <div class="form-group">
       <label>Location (optional)</label>
       <input id="locationName" type="text" placeholder="e.g., Oslo city center" />
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input id="geocodeQuery" type="text" placeholder="Search a place (OpenStreetMap)…" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px" />
+        <button type="button" id="btnSearch" style="padding:8px 12px">Search</button>
+      </div>
+      <div id="geocodeResults" style="display:none;background:#fff;border:1px solid #ddd;border-radius:6px;margin-top:6px;max-height:180px;overflow:auto"></div>
       <div id="map"></div>
-      <small style="color:#666;display:block;margin-top:6px">Click on the map to set a position. You can also type a place name above.</small>
+      <small style="color:#666;display:block;margin-top:6px">Click on the map to set a position or search above and pick a result.</small>
       <input id="latitude" type="hidden" />
       <input id="longitude" type="hidden" />
     </div>
@@ -408,6 +413,46 @@
       const { lat, lng } = e.latlng;
       setMarker(lat, lng);
     });
+
+    // Simple geocoding with Nominatim (no API key)
+    const qInput = document.getElementById('geocodeQuery');
+    const btnSearch = document.getElementById('btnSearch');
+    const resBox = document.getElementById('geocodeResults');
+    async function geocode(){
+      const q = qInput.value.trim();
+      if (!q) { resBox.style.display='none'; resBox.innerHTML=''; return; }
+      resBox.style.display='block';
+      resBox.innerHTML = '<div style="padding:8px;color:#666">Searching…</div>';
+      try{
+        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}`;
+        const r = await fetch(url, { headers: { 'Accept-Language': 'en' }});
+        const items = await r.json();
+        if (!Array.isArray(items) || items.length === 0){
+          resBox.innerHTML = '<div style="padding:8px;color:#666">No results</div>';
+          return;
+        }
+        resBox.innerHTML = items.slice(0,8).map(it=>{
+          const label = (it.display_name || '').replace(/, Norway.*/,'');
+          return `<div class="geo-item" data-lat="${it.lat}" data-lon="${it.lon}" data-label="${(it.display_name||'').replace(/"/g,'&quot;') }" style="padding:8px;border-bottom:1px solid #eee;cursor:pointer">${label}</div>`
+        }).join('');
+        resBox.querySelectorAll('.geo-item').forEach(el=>{
+          el.addEventListener('click', ()=>{
+            const lat = parseFloat(el.dataset.lat);
+            const lon = parseFloat(el.dataset.lon);
+            const label = el.dataset.label;
+            setMarker(lat, lon);
+            map.setView([lat, lon], 14);
+            const locInput = document.getElementById('locationName');
+            if (!locInput.value.trim()) locInput.value = label;
+            resBox.style.display='none';
+          })
+        })
+      }catch(err){
+        resBox.innerHTML = '<div style="padding:8px;color:#c00">Error searching</div>';
+      }
+    }
+    btnSearch.addEventListener('click', geocode);
+    qInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter') geocode(); });
   </script>
 </body>
 </html>
