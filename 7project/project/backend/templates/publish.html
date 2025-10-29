@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <title>Publish a bike</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -99,6 +100,7 @@
       border: 1px solid #ddd;
       display: none;
     }
+    #map { height: 250px; margin-top: 8px; border-radius: 6px; border: 1px solid #ddd; }
   </style>
 </head>
 <body>
@@ -171,6 +173,15 @@
     <div class="form-group">
       <label>Description</label>
       <textarea id="description" placeholder="Add details about the bike..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Location (optional)</label>
+      <input id="locationName" type="text" placeholder="e.g., Oslo city center" />
+      <div id="map"></div>
+      <small style="color:#666;display:block;margin-top:6px">Click on the map to set a position. You can also type a place name above.</small>
+      <input id="latitude" type="hidden" />
+      <input id="longitude" type="hidden" />
     </div>
 
     <div>
@@ -320,7 +331,10 @@
         sale_type,
         condition,
         description,
-        image_url: imageUrlInput.value.trim() || null
+        image_url: imageUrlInput.value.trim() || null,
+        location_name: document.getElementById('locationName').value.trim() || null,
+        latitude: (document.getElementById('latitude').value || '') ? Number(document.getElementById('latitude').value) : null,
+        longitude: (document.getElementById('longitude').value || '') ? Number(document.getElementById('longitude').value) : null
       };
 
       const statusEl = document.getElementById('status');
@@ -351,6 +365,13 @@
           document.getElementById('description').value = '';
           document.querySelector('input[name="sale_type"][value="venta"]').checked = true;
           updatePriceFields();
+          document.getElementById('locationName').value = '';
+          document.getElementById('latitude').value = '';
+          document.getElementById('longitude').value = '';
+          if (window._map && window._marker) {
+            window._map.removeLayer(window._marker);
+            window._marker = null;
+          }
           
           // Redirigir después de 1.5 segundos
           setTimeout(() => {
@@ -364,6 +385,28 @@
         statusEl.textContent = '✗ Network error';
         statusEl.className = 'error';
       }
+    });
+  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    // Initialize Leaflet map
+    const map = L.map('map').setView([59.9139, 10.7522], 11); // default Oslo
+    window._map = map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    let marker = null; window._marker = marker;
+    function setMarker(lat, lon){
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lon]).addTo(map);
+      window._marker = marker;
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lon;
+    }
+    map.on('click', (e)=>{
+      const { lat, lng } = e.latlng;
+      setMarker(lat, lng);
     });
   </script>
 </body>
