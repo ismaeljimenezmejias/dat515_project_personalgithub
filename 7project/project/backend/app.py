@@ -22,11 +22,12 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-change-me')
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-# Ensure minimal schema adjustments (idempotent)
-try:
-    ensure_schema()
-except Exception as _e:
-    logging.warning("Schema ensure failed or not required: %s", _e)
+# Ensure minimal schema adjustments (idempotent) - gated by env
+if os.getenv('MIGRATE_ON_START', 'true').lower() in ('1', 'true', 'yes'):
+    try:
+        ensure_schema()
+    except Exception as _e:
+        logging.warning("Schema ensure failed or not required: %s", _e)
 
 # Registrar blueprints
 app.register_blueprint(health_bp)
@@ -42,9 +43,13 @@ try:
         app.config['SESSION_PERMANENT'] = False
         app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
         app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'true').lower() in ('1','true','yes')
+        app.config['SESSION_KEY_PREFIX'] = os.getenv('SESSION_KEY_PREFIX', 'sess:')
         Session(app)
-except Exception:
-    pass
+        logging.info('Sessions: Redis backend ENABLED')
+    else:
+        logging.info('Sessions: Redis not configured or unhealthy -> using signed cookies')
+except Exception as _e:
+    logging.warning('Sessions: Redis setup error -> using signed cookies: %s', _e)
 
 
 # Basic structured logging
