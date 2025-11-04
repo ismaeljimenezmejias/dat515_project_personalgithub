@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request, session
 from db import get_connection
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 data_bp = Blueprint('data', __name__)
 
@@ -472,5 +474,84 @@ def get_conversations():
             })
         conn.close()
         return jsonify({'conversations': conversations})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@data_bp.route('/api/recommendations/<int:bike_id>', methods=['GET'])
+def get_recommendations(bike_id):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Get the target bike
+        cursor.execute(
+            "SELECT id, title, sale_price, rental_price, sale_type, model, bike_condition, location_name, latitude, longitude FROM bikes WHERE id = %s",
+            (bike_id,),
+        )
+        target = cursor.fetchone()
+        if not target:
+            return jsonify({'error': 'Bike not found'}), 404
+
+        # Get all bikes except the target
+        cursor.execute(
+            "SELECT id, title, sale_price, rental_price, sale_type, model, bike_condition, location_name, latitude, longitude FROM bikes WHERE id != %s",
+            (bike_id,),
+        )
+        bikes = cursor.fetchall()
+        conn.close()
+
+        if not bikes:
+            return jsonify({'recommendations': []})
+
+        # Prepare features for ML
+        def encode_bike(bike):
+            price = bike[2] or bike[3] or 0  # sale_price or rental_price
+            sale_type_map = {'venta': 0, 'alquiler': 1, 'ambos': 2}
+            condition_map = {'Poor': 0, 'Fair': 1, 'Good': 2, 'Very Good': 3, 'Excellent': 4}
+            lat = bike[8]
+            lon = bike[9]
+            try:
+                price_val = float(price) if price else 0.0
+            except (TypeError, ValueError):
+                price_val = 0.0
+            try:
+                lat_val = float(lat) if lat is not None else 0.0
+            except (TypeError, ValueError):
+                lat_val = 0.0
+            try:
+                lon_val = float(lon) if lon is not None else 0.0
+            except (TypeError, ValueError):
+                lon_val = 0.0
+            return [
+                price_val / 1000.0 if price_val else 0,
+                sale_type_map.get(bike[4], 0),
+                condition_map.get(bike[6], 2),  # Default to Good
+                (lat_val / 90.0) if lat is not None else 0,
+                (lon_val / 180.0) if lon is not None else 0,
+            ]
+
+        target_features = encode_bike(target)
+        bike_features = [encode_bike(b) for b in bikes]
+
+        # Calculate similarities
+        similarities = cosine_similarity(np.array([target_features]), np.array(bike_features))[0]
+
+        # Get top 3 recommendations
+        top_indices = np.argsort(similarities)[-3:][::-1]
+        recommendations = []
+        for idx in top_indices:
+            if similarities[idx] > 0.5:  # Threshold for relevance
+                bike = bikes[idx]
+                recommendations.append({
+                    'id': bike[0],
+                    'title': bike[1],
+                    'sale_price': bike[2],
+                    'rental_price': bike[3],
+                    'sale_type': bike[4],
+                    'similarity': float(similarities[idx])
+                })
+
+        return jsonify({'recommendations': recommendations})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -1,4 +1,4 @@
-# Build stage
+# Build stage: not needed in production but needed for installing dependencies
 FROM python:3.9-slim AS builder
 
 # Install build dependencies

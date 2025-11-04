@@ -154,6 +154,21 @@
       margin-bottom: 1rem;
     }
     #map { height: 280px; border-radius: 8px; border: 1px solid #ddd; margin-top: 12px; }
+    .recommendations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .rec-bike {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .rec-bike h4 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+    .rec-bike p { margin: 0.25rem 0; }
+  </style>
   </style>
 </head>
 <body data-bike-id="{{ bike_id }}">
@@ -210,6 +225,8 @@
       </div>
 
       <div class="action-buttons" id="action-buttons"></div>
+
+      <div id="recommendations" class="detail-section" style="display:none;margin-top:2rem;"></div>
     </div>
   </div>
 
@@ -332,6 +349,9 @@
         
         actionsDiv.innerHTML = actionsHTML;
 
+        // Load recommendations
+        loadRecommendations(bike.id);
+
         // Map block (separate section)
         if (typeof L !== 'undefined' && bike.latitude != null && bike.longitude != null) {
           document.getElementById('location-block').style.display = 'block';
@@ -348,6 +368,39 @@
         document.getElementById('loading').style.display = 'none';
         document.getElementById('error').style.display = 'block';
         document.getElementById('error').textContent = 'Error loading bike details: ' + err.message;
+      }
+    }
+
+    async function loadRecommendations(bikeId) {
+      try {
+        const response = await fetch(`/api/recommendations/${bikeId}`);
+        if (!response.ok) throw new Error('Failed to load recommendations');
+        const data = await response.json();
+        const recDiv = document.getElementById('recommendations');
+        if (data.recommendations && data.recommendations.length > 0) {
+          const NOK_RATE = 11.5;
+          let html = '<h3>🚴 Similar Bikes</h3><div class="recommendations-grid">';
+          data.recommendations.forEach(rec => {
+            const basePrice = rec.sale_price ?? rec.rental_price;
+            const parsed = basePrice !== null && basePrice !== undefined ? Number(basePrice) : null;
+            const priceNok = parsed !== null && !Number.isNaN(parsed) ? `NOK ${(parsed * NOK_RATE).toFixed(0)}` : 'N/A';
+            html += `
+              <div class="rec-bike">
+                <h4><a href="/bike/${rec.id}">${rec.title}</a></h4>
+                <p>Price: ${priceNok}</p>
+                <p>Similarity: ${(rec.similarity * 100).toFixed(0)}%</p>
+              </div>
+            `;
+          });
+          html += '</div>';
+          recDiv.innerHTML = html;
+          recDiv.style.display = 'block';
+        } else {
+          recDiv.innerHTML = '<p>No similar bikes found.</p>';
+          recDiv.style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error loading recommendations:', err);
       }
     }
 
