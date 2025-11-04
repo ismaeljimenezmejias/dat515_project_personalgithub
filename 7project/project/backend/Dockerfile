@@ -14,9 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application to /app
 COPY . . 
 
-# Copy and make entrypoint executable
-COPY entrypoint.sh .
-RUN chmod +x ./entrypoint.sh
+# Normalize line endings (if copied from Windows) and make entrypoint executable
+RUN sed -i 's/\r$//' entrypoint.sh && \
+  chmod +x ./entrypoint.sh
 
 # Create non-root user and switch to it
 RUN useradd -r -s /bin/false appuser

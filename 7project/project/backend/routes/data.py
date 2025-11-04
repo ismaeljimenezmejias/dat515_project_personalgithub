@@ -85,7 +85,7 @@ def bikes():
             conn.commit()
             return jsonify({'success': True}), 201
 
-        # GET bikes with optional filters
+        # GET bikes with filters
         def _to_float(val):
             try:
                 return float(val)
@@ -222,8 +222,20 @@ def signup():
             conn.close()
             return jsonify({'error': 'User already exists'}), 409
         pwd_hash = generate_password_hash(password)
-        cur.execute('INSERT INTO users (name, password_hash, created_at) VALUES (%s, %s, %s) RETURNING id', (name, pwd_hash, datetime.now()))
-        user_id = cur.fetchone()[0]
+        is_postgres = conn.__class__.__module__.startswith('psycopg2')
+        if is_postgres:
+            cur.execute(
+                'INSERT INTO users (name, password_hash, created_at) VALUES (%s, %s, %s) RETURNING id',
+                (name, pwd_hash, datetime.now())
+            )
+            row = cur.fetchone()
+            user_id = row[0] if row else None
+        else:
+            cur.execute(
+                'INSERT INTO users (name, password_hash, created_at) VALUES (%s, %s, %s)',
+                (name, pwd_hash, datetime.now())
+            )
+            user_id = cur.lastrowid
         conn.commit()
         conn.close()
         session['user_id'] = user_id
@@ -357,12 +369,22 @@ def send_message():
         cursor.execute('SELECT id FROM bikes WHERE id = %s', (bike_id,))
         if not cursor.fetchone():
             return jsonify({'error': 'Bike not found'}), 404
-        cursor.execute(
-            """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at)
-               VALUES (%s, %s, %s, %s, %s) RETURNING id""",
-            (bike_id, user_id, receiver_id, content, datetime.now())
-        )
-        message_id = cursor.fetchone()[0]
+        is_postgres = conn.__class__.__module__.startswith('psycopg2')
+        if is_postgres:
+            cursor.execute(
+                """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at)
+                   VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                (bike_id, user_id, receiver_id, content, datetime.now())
+            )
+            row = cursor.fetchone()
+            message_id = row[0] if row else None
+        else:
+            cursor.execute(
+                """INSERT INTO messages (bike_id, sender_id, receiver_id, content, created_at)
+                   VALUES (%s, %s, %s, %s, %s)""",
+                (bike_id, user_id, receiver_id, content, datetime.now())
+            )
+            message_id = cursor.lastrowid
         conn.commit()
         conn.close()
         return jsonify({'ok': True, 'message_id': message_id}), 201

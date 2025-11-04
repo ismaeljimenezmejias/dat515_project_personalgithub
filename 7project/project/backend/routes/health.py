@@ -29,5 +29,5 @@ def health():
         'status': status,
         'database': db_status,
         'cache': cache_status,
-        'timestamp': datetime.now().isoformat()
+        'timestamp': datetime.now().isoformat() 
     })
