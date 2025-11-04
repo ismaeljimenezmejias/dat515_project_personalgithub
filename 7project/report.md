@@ -270,27 +270,33 @@ curl http://localhost:8080/health       # returns {"status":"ok"}
 - [ ] Code walkthrough
 - [ ] Build and deployment showcase
 
-## Troubleshooting
+### Troubleshooting
 
-### Common Issues
+Below are the main troubleshooting patterns we hit and the concise mitigations we applied:
 
-#### Issue 1: [Common problem]
+- OpenStack deploys blocked progress — mitigation: switch to local Docker Desktop for fast iteration and use Railway for an early cloud preview.
+- DB incompatibilities (MySQL ↔ PostgreSQL) — mitigation: add small, idempotent migration checks and test the schema with the PostgreSQL driver used in production.
+- Redis/session differences across environments — mitigation: make Redis optional, add health checks and validate session behaviour end‑to‑end in prod.
+- Messaging persistence (brief) — during manual testing some messages were not saved and later triggered errors; we corrected the database implementation and validated the message flow.
 
-**Symptoms**: [What the user sees]
-**Solution**: [Step-by-step fix]
+### Quick debug commands
 
-#### Issue 2: [Another common problem]
+Main debugging functions I used were:
 
-**Symptoms**: [What the user sees]
-**Solution**: [Step-by-step fix]
+- Follow application logs
+docker compose logs -f app
 
-### Debug Commands
+- Check the app health endpoint
+curl http://localhost:8080/health
 
-```bash
-# Useful commands for debugging
-# Log viewing commands
-# Service status checks
-```
+- Open a shell on the database container (inspect DB state interactively)
+docker compose exec database sh
+
+- Ping the local Redis service
+docker compose exec cache redis-cli ping
+
+- Re-run the app's lightweight schema ensure step
+docker compose exec app python -c "from migrations import ensure_schema; ensure_schema()"
 
 ---
 
@@ -356,33 +362,6 @@ I learned how to build and deploy a full‑stack Flask app end‑to‑end and ho
 - Redis/session inconsistencies between environments → made Redis usage defensive (health checks / optional) and validated session behavior in prod.  
 - Image build and env var failures on Railway → iterated Dockerfile, fixed env config, and used deployment logs to target fixes.
 
-### Troubleshooting (retrospective)
-
-Below are the main troubleshooting patterns we hit and the concise mitigations we applied:
-
-- OpenStack deploys blocked progress — mitigation: switch to local Docker Desktop for fast iteration and use Railway for an early cloud preview.
-- DB incompatibilities (MySQL ↔ PostgreSQL) — mitigation: add small, idempotent migration checks and test the schema with the PostgreSQL driver used in production.
-- Redis/session differences across environments — mitigation: make Redis optional, add health checks and validate session behaviour end‑to‑end in prod.
-- Messaging persistence (brief) — during manual testing some messages were not saved and later triggered errors; we corrected the database implementation and validated the message flow.
-
-### Quick debug commands
-
-Main debugging functions I used were:
-
-# Follow application logs
-docker compose logs -f app
-
-# Check the app health endpoint
-curl http://localhost:8080/health
-
-# Open a shell on the database container (inspect DB state interactively)
-docker compose exec database sh
-
-# Ping the local Redis service
-docker compose exec cache redis-cli ping
-
-# Re-run the app's lightweight schema ensure step
-docker compose exec app python -c "from migrations import ensure_schema; ensure_schema()"
 
 
 ### If We Did This Again
