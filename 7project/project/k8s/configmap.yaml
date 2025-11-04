@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bike-market-config
+data:
+  SECRET_KEY: "9gN8wVjE6cRkQ2hLxBz1AqP7sT4uY9mD0fH3nK6pR8vW5yZ2tJ7lC1oU3aB6eP9"
+  DB_URL: "postgresql://bikeuser:bikepass@postgres-service:5432/bikedb"
+  REDIS_URL: "redis://redis-service:6379"
+  PORT: "8000"

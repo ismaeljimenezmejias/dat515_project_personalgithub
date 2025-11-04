@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-db-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-db
+        image: bike-market-backend:latest
+        imagePullPolicy: Never
+        command: ["python", "init_db_pg.py"]
+        envFrom:
+        - configMapRef:
+            name: bike-market-config
+      restartPolicy: Never

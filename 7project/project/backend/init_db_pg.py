@@ -27,6 +27,9 @@ CREATE TABLE bikes (
   description    TEXT,
   owner_id       BIGINT,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  location_name  TEXT,
+  latitude       NUMERIC,
+  longitude      NUMERIC,
   FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL
 );
 CREATE INDEX idx_bikes_created_at ON bikes(created_at);

@@ -1,7 +1,9 @@
   services:
     # Web application
     app:
-      build: ./backend
+      build:
+        context: .
+        dockerfile: backend/Dockerfile
       environment:
         - DB_HOST=database
         - DB_USER=webuser
