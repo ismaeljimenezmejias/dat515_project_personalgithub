@@ -128,11 +128,14 @@ No manual action needed when building with Docker; the backend Dockerfile copies
 ### 3. Build the Application
 
 ```bash
-# In order to create the images 
+# Build all the images 
 docker compose up --build -d
 
-#To check the images and their status (we could also do that in Docker Desktop)
+# Inspect container status (alternatively use Docker Desktop)
 docker compose ps
+
+# Build the backend image once when targeting Kubernetes
+docker build -t bike-market-backend -f backend/Dockerfile .
 ```
 
 ### 4. Configuration
@@ -150,14 +153,33 @@ All of the following scripts are invoked automatically by Docker or the app entr
 
 ## Deployment Instructions
 
-### Local Deployment
+### Local Deployment (docker compose)
 
 ```bash
-docker compose up -d              # start the stack without rebuilding
-docker compose logs -f app        # optional: watch the Flask container start
+# Start the stack using existing images
+docker compose up -d
 
-# TODO: kubectl apply -f manifests/
+# Follow backend logs until it reports ready
+docker compose logs -f app
 ```
+
+### Local Deployment (kubernetes)
+
+```bash
+# Make sure the backend image exists locally
+docker build -t bike-market-backend -f backend/Dockerfile .
+
+# Apply every manifest in k8s/ (Deployments, Services, Job, ConfigMap, PVC)
+kubectl apply -f k8s/
+
+# Confirm the cluster is reachable and pods are up
+kubectl get nodes
+
+#Check every pod runs correctly
+kubectl get pods
+```
+
+
 
 ### Cloud Deployment
 

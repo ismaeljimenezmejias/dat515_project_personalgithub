@@ -15,10 +15,10 @@ This means that you must get at least 2 points for each item in this category.
 |                                  | Use planning tool (e.g., GitHub issues) | 5              | ✔️ Done          |
 |                                  | Proper version control usage            | 5              | ✔️ Done          |
 |                                  | Complete source code                    | 5              | ✔️ Done          |
-| Documentation                    | Comprehensive reproducibility report    | 10             | ❌ No            |
+| Documentation                    | Comprehensive reproducibility report    | 10             | ✔️ Done          |
 |                                  | Updated design document                 | 5              | ✔️ Done          |
-|                                  | Clear build/deployment instructions     | 5              | ➖ Parcial       |
-|                                  | Troubleshooting guide                   | 5              | ❌ No            |
+|                                  | Clear build/deployment instructions     | 5              | ✔️ Done          |
+|                                  | Troubleshooting guide                   | 5              | ✔️ Done          |
 |                                  | Completed self-assessment table         | 5              | ✔️ Done          |
 |                                  | Hour sheets for all members             | 5              | ✔️ Done          |
 | Presentation Video               | Project demonstration                   | 5              | ❌ No            |
@@ -40,13 +40,13 @@ This means that you must get at least 2 points for each item in this category.
 |                                  | Advanced cloud services                 | 5              | ❌ No            |
 | **DevOps & Deployment**          |                                         |                |                  |
 | Containerization                 | Basic Dockerfile                        | 5              | ✔️ Done          |
-|                                  | Optimized Dockerfile                    | 5              | ❌ No            |
+|                                  | Optimized Dockerfile                    | 5              | ✔️ Done          |
 |                                  | Docker Compose                          | 5              | ✔️ Done          |
 |                                  | Persistent storage                      | 5              | ✔️ Done          |
 | Deployment & Scaling             | Manual deployment                       | 5              | ✔️ Done          |
-|                                  | Automated deployment                    | 5              | ❌ No            |
-|                                  | Multiple replicas                       | 5              | ❌ No            |
-|                                  | Kubernetes deployment                   | 10             | ❌ No            |
+|                                  | Automated deployment                    | 5              | ✔️ Done          |
+|                                  | Multiple replicas                       | 5              | ✔️ Done          |
+|                                  | Kubernetes deployment                   | 10             | ✔️ Done          |
 | **Quality Assurance**            |                                         |                |                  |
 | Testing                          | Unit tests                              | 5              | ❌ No            |
 |                                  | Integration tests                       | 5              | ❌ No            |
@@ -55,11 +55,11 @@ This means that you must get at least 2 points for each item in this category.
 | Monitoring & Operations          | Health checks                           | 5              | ✔️ Done          |
 |                                  | Logging                                 | 5              | ✔️ Done          |
 |                                  | Metrics/Monitoring                      | 5              | ❌ No            |
-| Security                         | HTTPS/TLS                               | 5              | ➖ Parcial       |
+| Security                         | HTTPS/TLS                               | 5              | ❌ No            |
 |                                  | Authentication                          | 5              | ✔️ Done          |
 |                                  | Authorization                           | 5              | ✔️ Done          |
 | **Innovation & Excellence**      |                                         |                |                  |
-| Advanced Features and            | AI/ML Integration                       | 10             | ❌ No            |
+| Advanced Features and            | AI/ML Integration                       | 10             |    ✔️ Done        |
 | Technical Excellence             | Real-time features                      | 10             | ❌ No            |
 |                                  | Creative problem solving                | 10             | ❌ No            |
 |                                  | Performance optimization                | 5              | ❌ No            |
