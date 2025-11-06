@@ -9,10 +9,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - bike.local
+    - localhost
     secretName: bike-market-tls
   rules:
-  - host: bike.local
+  - host: localhost
     http:
       paths:
       - path: /
