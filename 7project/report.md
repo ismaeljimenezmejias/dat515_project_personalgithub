@@ -27,38 +27,36 @@ The app is a classic server‑rendered web app with a JSON API. Locally (Docker 
 
 ```mermaid
 flowchart LR
-    %% Layout hint
     classDef tls fill:#e3f2fd,stroke:#90caf9,color:#0d47a1;
     classDef state fill:#fff3e0,stroke:#ffb74d,color:#e65100;
     classDef app fill:#e8f5e9,stroke:#81c784,color:#1b5e20;
     classDef infra fill:#f3e5f5,stroke:#ba68c8,color:#4a148c;
-    classDef note fill:#fafafa,stroke:#bdbdbd,color:#424242,stroke-dasharray: 5 3;
+    classDef note fill:#fafafa,stroke:#bdbdbd,color:#424242,stroke-dasharray:5 3;
 
-    %% -------------------- Docker Compose --------------------
     subgraph DC[Local - Docker Compose]
         direction TB
         A1[User Browser]
-        N1[Nginx Reverse Proxy\n(TLS termination + HSTS)]:::tls
+        N1[Nginx Reverse Proxy (TLS + HSTS)]:::tls
         F1[Flask App (Gunicorn)]:::app
         M1[(MySQL)]:::state
         R1[(Redis)]:::state
+        C1[Env (.env / compose)]:::note
         A1 --> N1 --> F1
         F1 --> M1
         F1 --> R1
-        C1{{.env / docker-compose env}}:::note
-        C1 -. config vars .- F1
+        C1 -. vars .- F1
     end
 
-    %% -------------------- Kubernetes --------------------
     subgraph K8s[Production - Kubernetes]
         direction TB
         A2[User Browser]
-        I2[Ingress Controller\n(TLS termination)]:::tls
+        I2[Ingress Controller (TLS)]:::tls
         S2[Service (ClusterIP)]:::infra
-        P2a[Backend Pod - Replica 1\nFlask]:::app
-        P2b[Backend Pod - Replica 2\nFlask]:::app
+        P2a[Backend Pod Replica 1 (Flask)]:::app
+        P2b[Backend Pod Replica 2 (Flask)]:::app
         PG2[(PostgreSQL + PVC)]:::state
         R2[(Redis)]:::state
+        C2[ConfigMap / Env]:::note
         A2 --> I2 --> S2
         S2 --> P2a
         S2 --> P2b
@@ -66,33 +64,30 @@ flowchart LR
         P2b --> PG2
         P2a --> R2
         P2b --> R2
-        C2{{ConfigMap / Env}}:::note
-        C2 -. config vars .- P2a
-        C2 -. config vars .- P2b
+        C2 -. vars .- P2a
+        C2 -. vars .- P2b
     end
 
-    %% -------------------- Railway (PaaS) --------------------
     subgraph RW[Cloud PaaS - Railway]
         direction TB
         A3[User Browser]
-        E3[Railway Edge\n(Managed HTTPS/TLS)]:::tls
-        F3[Flask App (Container)]:::app
+        E3[Railway Edge (Managed HTTPS)]:::tls
+        F3[Flask App Container]:::app
         PG3[(Managed Postgres)]:::state
         R3[(Managed Redis)]:::state
+        C3[Railway Vars]:::note
         A3 --> E3 --> F3
         F3 --> PG3
         F3 --> R3
-        C3{{Railway Variables}}:::note
-        C3 -. config vars .- F3
-        Note3[[No custom reverse proxy required]]:::note
-        E3 -. note .- Note3
+        C3 -. vars .- F3
+        Note3[No custom reverse proxy]:::note
+        E3 -. info .- Note3
     end
 
-    %% Cross-environment notes
-    NoteShared[[Same application code across environments\nSessions: Redis preferred; fallback to signed cookies]]:::note
-    F1 -. same app .- NoteShared
-    P2a -. same app .- NoteShared
-    F3 -. same app .- NoteShared
+    NoteShared[Same codebase; Redis optional; fallback to signed cookies]:::note
+    F1 -. same .- NoteShared
+    P2a -. same .- NoteShared
+    F3 -. same .- NoteShared
 ```
 
 
