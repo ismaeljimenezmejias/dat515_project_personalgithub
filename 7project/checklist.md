@@ -48,14 +48,14 @@ This means that you must get at least 2 points for each item in this category.
 |                                  | Multiple replicas                       | 5              | ✔️ Done          |
 |                                  | Kubernetes deployment                   | 10             | ✔️ Done          |
 | **Quality Assurance**            |                                         |                |                  |
-| Testing                          | Unit tests                              | 5              | ❌ No            |
+| Testing                          | Unit tests                              | 5              | ✔️ Done          |
 |                                  | Integration tests                       | 5              | ❌ No            |
 |                                  | End-to-end tests                        | 5              | ❌ No            |
 |                                  | Performance testing                     | 5              | ❌ No            |
 | Monitoring & Operations          | Health checks                           | 5              | ✔️ Done          |
 |                                  | Logging                                 | 5              | ✔️ Done          |
 |                                  | Metrics/Monitoring                      | 5              | ❌ No            |
-| Security                         | HTTPS/TLS                               | 5              | ❌ No            |
+| Security                         | HTTPS/TLS                               | 5              | ✔️ Done          |
 |                                  | Authentication                          | 5              | ✔️ Done          |
 |                                  | Authorization                           | 5              | ✔️ Done          |
 | **Innovation & Excellence**      |                                         |                |                  |
@@ -63,7 +63,7 @@ This means that you must get at least 2 points for each item in this category.
 | Technical Excellence             | Real-time features                      | 10             | ❌ No            |
 |                                  | Creative problem solving                | 10             | ❌ No            |
 |                                  | Performance optimization                | 5              | ❌ No            |
-|                                  | Exceptional user experience             | 5              |                  |
+|                                  | Exceptional user experience             | 5              |     ❌ No        |
 | **Total**                        |                                         | **255**        | **[Your Total]** |
 
 ## Grading Scale

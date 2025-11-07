@@ -26,21 +26,73 @@ Bike Student Marketplace is a small web application for buying, selling and sear
 The app is a classic server‑rendered web app with a JSON API. Locally (Docker Compose) Nginx reverse proxies to the Flask container, which renders HTML (Jinja templates) and exposes `/api/*` endpoints. The local database is MySQL and Redis is available for caching/health checks. In production the same Flask image is deployed directly to Railway without Nginx; it connects to Railway's managed PostgreSQL database (and optional Redis service).
 
 ```mermaid
-graph LR
-  Browser[User Browser]
+flowchart LR
+    %% Layout hint
+    classDef tls fill:#e3f2fd,stroke:#90caf9,color:#0d47a1;
+    classDef state fill:#fff3e0,stroke:#ffb74d,color:#e65100;
+    classDef app fill:#e8f5e9,stroke:#81c784,color:#1b5e20;
+    classDef infra fill:#f3e5f5,stroke:#ba68c8,color:#4a148c;
+    classDef note fill:#fafafa,stroke:#bdbdbd,color:#424242,stroke-dasharray: 5 3;
 
-  subgraph Local (Docker Compose)
-    Browser -->|HTTP| Nginx[Nginx]
-    Nginx -->|HTTP| FlaskLocal[Flask App]
-    FlaskLocal -->|SQL| MySQL[(MySQL)]
-    FlaskLocal -->|Cache| Redis[(Redis)]
-  end
+    %% -------------------- Docker Compose --------------------
+    subgraph DC[Local - Docker Compose]
+        direction TB
+        A1[User Browser]
+        N1[Nginx Reverse Proxy\n(TLS termination + HSTS)]:::tls
+        F1[Flask App (Gunicorn)]:::app
+        M1[(MySQL)]:::state
+        R1[(Redis)]:::state
+        A1 --> N1 --> F1
+        F1 --> M1
+        F1 --> R1
+        C1{{.env / docker-compose env}}:::note
+        C1 -. config vars .- F1
+    end
 
-  subgraph Production (Railway)
-    Browser -->|HTTPS| FlaskProd[Flask App]
-    FlaskProd -->|SQL| Postgres[(Railway PostgreSQL)]
-    FlaskProd -->|Cache| RedisManaged[(Railway Redis)]
-  end
+    %% -------------------- Kubernetes --------------------
+    subgraph K8s[Production - Kubernetes]
+        direction TB
+        A2[User Browser]
+        I2[Ingress Controller\n(TLS termination)]:::tls
+        S2[Service (ClusterIP)]:::infra
+        P2a[Backend Pod - Replica 1\nFlask]:::app
+        P2b[Backend Pod - Replica 2\nFlask]:::app
+        PG2[(PostgreSQL + PVC)]:::state
+        R2[(Redis)]:::state
+        A2 --> I2 --> S2
+        S2 --> P2a
+        S2 --> P2b
+        P2a --> PG2
+        P2b --> PG2
+        P2a --> R2
+        P2b --> R2
+        C2{{ConfigMap / Env}}:::note
+        C2 -. config vars .- P2a
+        C2 -. config vars .- P2b
+    end
+
+    %% -------------------- Railway (PaaS) --------------------
+    subgraph RW[Cloud PaaS - Railway]
+        direction TB
+        A3[User Browser]
+        E3[Railway Edge\n(Managed HTTPS/TLS)]:::tls
+        F3[Flask App (Container)]:::app
+        PG3[(Managed Postgres)]:::state
+        R3[(Managed Redis)]:::state
+        A3 --> E3 --> F3
+        F3 --> PG3
+        F3 --> R3
+        C3{{Railway Variables}}:::note
+        C3 -. config vars .- F3
+        Note3[[No custom reverse proxy required]]:::note
+        E3 -. note .- Note3
+    end
+
+    %% Cross-environment notes
+    NoteShared[[Same application code across environments\nSessions: Redis preferred; fallback to signed cookies]]:::note
+    F1 -. same app .- NoteShared
+    P2a -. same app .- NoteShared
+    F3 -. same app .- NoteShared
 ```
 
 
