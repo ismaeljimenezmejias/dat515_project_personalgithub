@@ -109,6 +109,11 @@
       border-radius: 6px;
       border: 1px solid #ddd;
     }
+    .thumb-slot { /* placeholder before image load */
+      width:80px;height:60px;border:1px solid #ddd;border-radius:6px;background:#eaeaea;position:relative;overflow:hidden;
+    }
+    .thumb-slot img { width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease; }
+    .thumb-slot.loaded img { opacity:1; }
   </style>
 </head>
 <body>
@@ -177,7 +182,7 @@
     let lastQueryUrl = '';
   const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
   const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
-  let lastRenderSignature = '';
+  // Removed advanced render signature logic (keeping only image removal placeholder change)
 
     async function ensureSession() {
       try {
@@ -207,15 +212,7 @@
     }
     document.getElementById('logout-link').addEventListener('click', (e)=>{ e.preventDefault(); logout(); });
 
-    let _loadInFlight = false;
-    let _loadQueued = false;
     async function loadBikes() {
-      if (_loadInFlight) {
-        // queue a single rerun after current completes instead of overlapping
-        _loadQueued = true;
-        return;
-      }
-      _loadInFlight = true;
   const params = new URLSearchParams();
   if (currentFilter !== 'all') params.set('type', currentFilter);
   if (currentUser) params.set('excludeMine', '1');
@@ -257,24 +254,16 @@
   }
       const url = '/api/bikes' + (params.toString() ? `?${params.toString()}` : '');
       if (url === lastQueryUrl) {
-        return; // avoid redundant refetch and re-render that can cause flicker
+        return; // original redundancy guard
       }
       lastQueryUrl = url;
-  const res = await fetch(url, { cache: 'no-store' });
-  const data = await res.json();
+      const res = await fetch(url);
+      const data = await res.json();
       const tbody = document.querySelector('#bikeTable tbody');
       const bikes = data.bikes || [];
-      const signature = bikes.map(b=>b.id).join(',');
-      if (signature === lastRenderSignature) {
-        // No content change; avoid DOM rebuild to reduce flicker
-        return;
-      }
-      lastRenderSignature = signature;
       
       if (bikes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
-        _loadInFlight = false;
-        if (_loadQueued) { _loadQueued = false; loadBikes(); }
         return;
       }
 
@@ -294,7 +283,11 @@
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
-            <td><div class="thumb" aria-hidden="true" style="background:#eaeaea;border:1px solid #ddd;border-radius:6px;"></div></td>
+            <td>
+              <div class="thumb-slot" data-src="${imgSrc}">
+                <img alt="${bike.title}" width="80" height="60" loading="lazy" decoding="async" />
+              </div>
+            </td>
             <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
             <td>${bike.model || '—'}</td>
             <td>${priceDisplay}</td>
@@ -307,8 +300,6 @@
           </tr>
         `;
       }).join('');
-      _loadInFlight = false;
-      if (_loadQueued) { _loadQueued = false; loadBikes(); }
     }
 
     function filterBikes(type) {
@@ -373,13 +364,10 @@
       const rentSync = () => { syncRanges(rentMin, rentMax, rentMinVal, rentMaxVal); };
       
       // Solo actualizar cuando sueltes el slider (change), no mientras arrastras
-      const schedule = (() => {
-        let t; return () => { clearTimeout(t); t = setTimeout(loadBikes, 150); };
-      })();
-      saleMin.addEventListener('change', () => { saleSync(); schedule(); });
-      saleMax.addEventListener('change', () => { saleSync(); schedule(); });
-      rentMin.addEventListener('change', () => { rentSync(); schedule(); });
-      rentMax.addEventListener('change', () => { rentSync(); schedule(); });
+      saleMin.addEventListener('change', () => { saleSync(); loadBikes(); });
+      saleMax.addEventListener('change', () => { saleSync(); loadBikes(); });
+      rentMin.addEventListener('change', () => { rentSync(); loadBikes(); });
+      rentMax.addEventListener('change', () => { rentSync(); loadBikes(); });
       
       // Search applies on Enter or when input loses focus (change). This avoids constant redraws.
       searchBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') loadBikes(); });
@@ -390,6 +378,8 @@
       updatePriceVisibility();
       loadBikes();
     })();
+
+    // Removed lazy loader logic (keeping placeholder only)
   </script>
 </body>
 </html>

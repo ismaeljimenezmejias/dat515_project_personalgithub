@@ -310,49 +310,6 @@ def delete_bike(bike_id):
         return jsonify({'error': str(e)}), 500
 
 
-@data_bp.route('/api/bikes/<int:bike_id>', methods=['GET'])
-def get_bike(bike_id):
-    """Return a single bike by id. Additive endpoint to reduce client over-fetching."""
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT b.id, b.title, b.sale_price, b.rental_price, b.sale_type, b.model,
-                   b.description, b.bike_condition, b.created_at, b.owner_id, u.name as owner_name,
-                   b.image_url, b.location_name, b.latitude, b.longitude
-            FROM bikes b LEFT JOIN users u ON b.owner_id = u.id
-            WHERE b.id = %s
-            """,
-            (bike_id,)
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if not row:
-            return jsonify({'error': 'Bike not found'}), 404
-        created_val = row[8]
-        created_str = created_val.isoformat() if hasattr(created_val, 'isoformat') else str(created_val) if created_val else None
-        bike = {
-            'id': row[0],
-            'title': row[1],
-            'sale_price': float(row[2]) if row[2] is not None else None,
-            'rental_price': float(row[3]) if row[3] is not None else None,
-            'sale_type': row[4],
-            'model': row[5],
-            'description': row[6],
-            'condition': row[7],
-            'created_at': created_str,
-            'owner_id': row[9],
-            'owner_name': row[10],
-            'image_url': row[11],
-            'location_name': row[12],
-            'latitude': float(row[13]) if row[13] is not None else None,
-            'longitude': float(row[14]) if row[14] is not None else None,
-        }
-        return jsonify({'bike': bike})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 
 @data_bp.route('/api/bikes/<int:bike_id>', methods=['PUT'])
 def update_bike(bike_id):
