@@ -91,7 +91,8 @@
     .btn-refresh:hover {
       background: #0056b3;
     }
-    .thumb { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+      /* Simplified thumbnail to avoid flicker: direct img fixed size */
+      .thumb { width:80px;height:60px;object-fit:cover;border:1px solid #ddd;border-radius:6px;display:block; }
   /* Placeholder thumbnail (no image loads to avoid flicker) */
   .thumb-slot { width:80px;height:60px;border:1px solid #ddd;border-radius:6px;background:#eaeaea;position:relative;overflow:hidden; }
   .thumb-slot img { width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease; }
@@ -218,9 +219,7 @@
 
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         const cached = loadedThumbs.has(imgSrc);
-        const thumbCell = cached
-          ? `<div class="thumb-slot loaded"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" src="${imgSrc}" /></div>`
-          : `<div class="thumb-slot" data-src="${imgSrc}"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" /></div>`;
+          const thumbCell = `<img class="thumb" src="${imgSrc}" alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'"/>`;
         return `
           <tr onclick="window.location.href='/bike/${bike.id}'">
             <td>
@@ -299,28 +298,7 @@
       }
       return null;
     }
-    function hydrateThumbs(){
-      const slots = document.querySelectorAll('.thumb-slot');
-      const obs = getThumbObserver();
-      if (!obs){
-        slots.forEach(slot => {
-          const img = slot.querySelector('img');
-          const src = slot.getAttribute('data-src');
-          if (img && src){
-            img.onload = ()=> { slot.classList.add('loaded'); loadedThumbs.add(src); };
-            img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
-            img.src = src;
-            if (img.complete) { // cached
-              slot.classList.add('loaded');
-              loadedThumbs.add(src);
-            }
-            slot.removeAttribute('data-src');
-          }
-        });
-        return;
-      }
-      slots.forEach(slot => obs.observe(slot));
-    }
+      // Simplified: no observer, direct image tags.
 
     loadBikes();
   </script>
