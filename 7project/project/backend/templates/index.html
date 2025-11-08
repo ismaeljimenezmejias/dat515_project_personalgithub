@@ -207,7 +207,15 @@
     }
     document.getElementById('logout-link').addEventListener('click', (e)=>{ e.preventDefault(); logout(); });
 
+    let _loadInFlight = false;
+    let _loadQueued = false;
     async function loadBikes() {
+      if (_loadInFlight) {
+        // queue a single rerun after current completes instead of overlapping
+        _loadQueued = true;
+        return;
+      }
+      _loadInFlight = true;
   const params = new URLSearchParams();
   if (currentFilter !== 'all') params.set('type', currentFilter);
   if (currentUser) params.set('excludeMine', '1');
@@ -252,8 +260,8 @@
         return; // avoid redundant refetch and re-render that can cause flicker
       }
       lastQueryUrl = url;
-      const res = await fetch(url);
-      const data = await res.json();
+  const res = await fetch(url, { cache: 'no-store' });
+  const data = await res.json();
       const tbody = document.querySelector('#bikeTable tbody');
       const bikes = data.bikes || [];
       const signature = bikes.map(b=>b.id).join(',');
@@ -264,7 +272,9 @@
       lastRenderSignature = signature;
       
       if (bikes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
+        _loadInFlight = false;
+        if (_loadQueued) { _loadQueued = false; loadBikes(); }
         return;
       }
 
@@ -284,7 +294,7 @@
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
-            <td><img class="thumb" width="80" height="60" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
+            <td><img class="thumb" width="80" height="60" loading="lazy" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
             <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
             <td>${bike.model || '—'}</td>
             <td>${priceDisplay}</td>
@@ -297,6 +307,8 @@
           </tr>
         `;
       }).join('');
+      _loadInFlight = false;
+      if (_loadQueued) { _loadQueued = false; loadBikes(); }
     }
 
     function filterBikes(type) {
@@ -361,10 +373,13 @@
       const rentSync = () => { syncRanges(rentMin, rentMax, rentMinVal, rentMaxVal); };
       
       // Solo actualizar cuando sueltes el slider (change), no mientras arrastras
-      saleMin.addEventListener('change', () => { saleSync(); loadBikes(); });
-      saleMax.addEventListener('change', () => { saleSync(); loadBikes(); });
-      rentMin.addEventListener('change', () => { rentSync(); loadBikes(); });
-      rentMax.addEventListener('change', () => { rentSync(); loadBikes(); });
+      const schedule = (() => {
+        let t; return () => { clearTimeout(t); t = setTimeout(loadBikes, 150); };
+      })();
+      saleMin.addEventListener('change', () => { saleSync(); schedule(); });
+      saleMax.addEventListener('change', () => { saleSync(); schedule(); });
+      rentMin.addEventListener('change', () => { rentSync(); schedule(); });
+      rentMax.addEventListener('change', () => { rentSync(); schedule(); });
       
       // Search applies on Enter or when input loses focus (change). This avoids constant redraws.
       searchBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') loadBikes(); });
