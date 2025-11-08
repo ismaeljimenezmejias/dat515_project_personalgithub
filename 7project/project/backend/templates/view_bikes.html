@@ -92,6 +92,10 @@
       background: #0056b3;
     }
     .thumb { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+  /* Placeholder thumbnail (no image loads to avoid flicker) */
+  .thumb-slot { width:80px;height:60px;border:1px solid #ddd;border-radius:6px;background:#eaeaea;position:relative;overflow:hidden; }
+  .thumb-slot img { width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease; }
+  .thumb-slot.loaded img { opacity:1; }
   </style>
 </head>
 <body>
@@ -210,10 +214,11 @@
           `;
         }
 
-        const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         return `
           <tr onclick="window.location.href='/bike/${bike.id}'">
-            <td><img class="thumb" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
+            <td>
+              <div class="thumb-slot"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" /></div>
+            </td>
             <td>${bike.id}</td>
             <td><strong>${bike.title}</strong></td>
             <td>${bike.model || '—'}</td>
