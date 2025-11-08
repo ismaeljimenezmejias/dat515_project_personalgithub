@@ -300,6 +300,7 @@
           </tr>
         `;
       }).join('');
+      hydrateThumbs();
     }
 
     function filterBikes(type) {
@@ -379,7 +380,50 @@
       loadBikes();
     })();
 
-    // Removed lazy loader logic (keeping placeholder only)
+    // Lazy-load thumbnails safely with fixed-size slots to avoid flicker
+    let thumbObserver = null;
+    function getThumbObserver(){
+      if (thumbObserver) return thumbObserver;
+      if ('IntersectionObserver' in window) {
+        thumbObserver = new IntersectionObserver((entries)=>{
+          for (const entry of entries){
+            if (!entry.isIntersecting) continue;
+            const slot = entry.target;
+            const img = slot.querySelector('img');
+            const src = slot.getAttribute('data-src');
+            if (img && src){
+              img.onload = ()=> slot.classList.add('loaded');
+              img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
+              img.src = src;
+              slot.removeAttribute('data-src');
+            }
+            thumbObserver.unobserve(slot);
+          }
+        }, { rootMargin: '100px 0px' });
+        return thumbObserver;
+      }
+      return null;
+    }
+
+    function hydrateThumbs(){
+      const slots = document.querySelectorAll('.thumb-slot');
+      const obs = getThumbObserver();
+      if (!obs){
+        // Fallback: load immediately
+        slots.forEach(slot => {
+          const img = slot.querySelector('img');
+          const src = slot.getAttribute('data-src');
+          if (img && src){
+            img.onload = ()=> slot.classList.add('loaded');
+            img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
+            img.src = src;
+            slot.removeAttribute('data-src');
+          }
+        });
+        return;
+      }
+      slots.forEach(slot => obs.observe(slot));
+    }
   </script>
 </body>
 </html>

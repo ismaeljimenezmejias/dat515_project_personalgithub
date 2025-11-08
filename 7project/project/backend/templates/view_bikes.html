@@ -214,10 +214,11 @@
           `;
         }
 
+        const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         return `
           <tr onclick="window.location.href='/bike/${bike.id}'">
             <td>
-              <div class="thumb-slot"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" /></div>
+              <div class="thumb-slot" data-src="${imgSrc}"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" /></div>
             </td>
             <td>${bike.id}</td>
             <td><strong>${bike.title}</strong></td>
@@ -230,6 +231,7 @@
           </tr>
         `;
       }).join('');
+      hydrateThumbs();
     }
 
     function filterBikes(type) {
@@ -262,6 +264,49 @@
     const searchBox = document.getElementById('searchBox');
     searchBox.addEventListener('keyup', (e)=>{ if (e.key === 'Enter') loadBikes(); });
     searchBox.addEventListener('change', ()=> loadBikes());
+
+    // Lazy-load thumbnails safely
+    let thumbObserver = null;
+    function getThumbObserver(){
+      if (thumbObserver) return thumbObserver;
+      if ('IntersectionObserver' in window) {
+        thumbObserver = new IntersectionObserver((entries)=>{
+          for (const entry of entries){
+            if (!entry.isIntersecting) continue;
+            const slot = entry.target;
+            const img = slot.querySelector('img');
+            const src = slot.getAttribute('data-src');
+            if (img && src){
+              img.onload = ()=> slot.classList.add('loaded');
+              img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
+              img.src = src;
+              slot.removeAttribute('data-src');
+            }
+            thumbObserver.unobserve(slot);
+          }
+        }, { rootMargin: '100px 0px' });
+        return thumbObserver;
+      }
+      return null;
+    }
+    function hydrateThumbs(){
+      const slots = document.querySelectorAll('.thumb-slot');
+      const obs = getThumbObserver();
+      if (!obs){
+        slots.forEach(slot => {
+          const img = slot.querySelector('img');
+          const src = slot.getAttribute('data-src');
+          if (img && src){
+            img.onload = ()=> slot.classList.add('loaded');
+            img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
+            img.src = src;
+            slot.removeAttribute('data-src');
+          }
+        });
+        return;
+      }
+      slots.forEach(slot => obs.observe(slot));
+    }
 
     loadBikes();
   </script>
