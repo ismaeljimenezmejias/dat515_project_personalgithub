@@ -177,6 +177,7 @@
     let lastQueryUrl = '';
   const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
   const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
+  let lastRenderSignature = '';
 
     async function ensureSession() {
       try {
@@ -255,6 +256,12 @@
       const data = await res.json();
       const tbody = document.querySelector('#bikeTable tbody');
       const bikes = data.bikes || [];
+      const signature = bikes.map(b=>b.id).join(',');
+      if (signature === lastRenderSignature) {
+        // No content change; avoid DOM rebuild to reduce flicker
+        return;
+      }
+      lastRenderSignature = signature;
       
       if (bikes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
@@ -277,7 +284,7 @@
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
-            <td><img class="thumb" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
+            <td><img class="thumb" width="80" height="60" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
             <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
             <td>${bike.model || '—'}</td>
             <td>${priceDisplay}</td>

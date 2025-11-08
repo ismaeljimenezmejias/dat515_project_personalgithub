@@ -247,13 +247,10 @@
 
     async function loadBikeDetails() {
       await checkAuth();
-      
       try {
-        const res = await fetch('/api/bikes');
+        const res = await fetch(`/api/bikes/${bikeId}`);
         const data = await res.json();
-        
-        const bike = data.bikes.find(b => b.id === bikeId);
-        
+        const bike = data.bike;
         if (!bike) {
           document.getElementById('loading').style.display = 'none';
           document.getElementById('error').style.display = 'block';
@@ -348,8 +345,8 @@
         
         actionsDiv.innerHTML = actionsHTML;
 
-        // Load recommendations
-        loadRecommendations(bike.id);
+  // Defer recommendations to reduce initial paint flicker
+  setTimeout(() => loadRecommendations(bike.id), 0);
 
         // Map block (separate section)
         if (typeof L !== 'undefined' && bike.latitude != null && bike.longitude != null) {
