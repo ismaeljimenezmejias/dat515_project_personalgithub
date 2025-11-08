@@ -179,6 +179,9 @@
     let lastQueryUrl = '';
     // Cache of already-loaded thumbnail URLs to avoid re-fades on re-render
     // const loadedThumbs = new Set();
+  // Inline SVG placeholder & fallback to eliminate blank/broken icon flicker
+  const THUMB_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60'><rect width='100%' height='100%' fill='%23eaeaea'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999' font-family='Arial'>IMG</text></svg>";
+  const THUMB_FALLBACK = 'https://via.placeholder.com/80x60?text=Bike';
   const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
   const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
   // Removed advanced render signature logic (keeping only image removal placeholder change)
@@ -279,8 +282,9 @@
           priceDisplay = '—';
         }
 
-        const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
-        const thumbCell = `<img class="thumb" src="${imgSrc}" alt="${bike.title}" width="80" height="60" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" />`;
+  const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
+  // Start with placeholder; swap after real image loaded to avoid white flash or broken icon
+  const thumbCell = `<img class=\"thumb\" src=\"${THUMB_PLACEHOLDER}\" data-src=\"${imgSrc}\" alt=\"${bike.title}\" width=\"80\" height=\"60\" loading=\"lazy\" decoding=\"async\" />`;
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
             <td>
@@ -298,7 +302,8 @@
           </tr>
         `;
       }).join('');
-      // hydrateThumbs();
+      // After rows injected, load thumbnails progressively (no layout changes)
+      loadThumbs();
     }
 
     function filterBikes(type) {
@@ -378,8 +383,22 @@
       loadBikes();
     })();
 
-    // Lazy-load thumbnails safely with fixed-size slots to avoid flicker
-      // (Simplified) No observer, direct <img> with fixed size prevents layout shift.
+    // Minimal image loader: prefetch real src, only swap when loaded (or fallback on error)
+    function loadThumbs(){
+      const imgs = document.querySelectorAll('img.thumb[data-src]');
+      imgs.forEach(img => {
+        const real = img.getAttribute('data-src');
+        if (!real) return;
+        const pre = new Image();
+        pre.onload = () => { img.src = real; img.removeAttribute('data-src'); };
+        pre.onerror = () => { img.src = THUMB_FALLBACK; img.removeAttribute('data-src'); };
+        pre.src = real;
+        if (pre.complete) { // Cached instantly
+          img.src = real;
+          img.removeAttribute('data-src');
+        }
+      });
+    }
   </script>
 </body>
 </html>

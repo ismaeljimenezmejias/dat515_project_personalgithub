@@ -153,8 +153,9 @@
     let currentFilter = 'all';
     let lastQueryUrl = '';
     let myLat = null, myLon = null;
-    // Cache of loaded thumbnail URLs to avoid column-only flicker on re-render
-    const loadedThumbs = new Set();
+  // Inline SVG placeholder & fallback to eliminate blank/broken icon flicker
+  const THUMB_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60'><rect width='100%' height='100%' fill='%23eaeaea'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999' font-family='Arial'>IMG</text></svg>";
+  const THUMB_FALLBACK = 'https://via.placeholder.com/80x60?text=Bike';
 
     async function loadBikes() {
   const params = new URLSearchParams();
@@ -218,8 +219,7 @@
         }
 
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
-        const cached = loadedThumbs.has(imgSrc);
-          const thumbCell = `<img class="thumb" src="${imgSrc}" alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'"/>`;
+        const thumbCell = `<img class=\"thumb\" src=\"${THUMB_PLACEHOLDER}\" data-src=\"${imgSrc}\" alt=\"${bike.title}\" width=\"80\" height=\"60\" decoding=\"async\" loading=\"lazy\" />`;
         return `
           <tr onclick="window.location.href='/bike/${bike.id}'">
             <td>
@@ -236,7 +236,7 @@
           </tr>
         `;
       }).join('');
-      hydrateThumbs();
+      loadThumbs();
     }
 
     function filterBikes(type) {
@@ -270,35 +270,22 @@
     searchBox.addEventListener('keyup', (e)=>{ if (e.key === 'Enter') loadBikes(); });
     searchBox.addEventListener('change', ()=> loadBikes());
 
-    // Lazy-load thumbnails safely
-    let thumbObserver = null;
-    function getThumbObserver(){
-      if (thumbObserver) return thumbObserver;
-      if ('IntersectionObserver' in window) {
-        thumbObserver = new IntersectionObserver((entries)=>{
-          for (const entry of entries){
-            if (!entry.isIntersecting) continue;
-            const slot = entry.target;
-            const img = slot.querySelector('img');
-            const src = slot.getAttribute('data-src');
-            if (img && src){
-              img.onload = ()=> { slot.classList.add('loaded'); loadedThumbs.add(src); };
-              img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
-              img.src = src;
-              if (img.complete) { // cached
-                slot.classList.add('loaded');
-                loadedThumbs.add(src);
-              }
-              slot.removeAttribute('data-src');
-            }
-            thumbObserver.unobserve(slot);
-          }
-        }, { rootMargin: '100px 0px' });
-        return thumbObserver;
-      }
-      return null;
+    // Minimal image loader identical to index page
+    function loadThumbs(){
+      const imgs = document.querySelectorAll('img.thumb[data-src]');
+      imgs.forEach(img => {
+        const real = img.getAttribute('data-src');
+        if (!real) return;
+        const pre = new Image();
+        pre.onload = () => { img.src = real; img.removeAttribute('data-src'); };
+        pre.onerror = () => { img.src = THUMB_FALLBACK; img.removeAttribute('data-src'); };
+        pre.src = real;
+        if (pre.complete) {
+          img.src = real;
+          img.removeAttribute('data-src');
+        }
+      });
     }
-      // Simplified: no observer, direct image tags.
 
     loadBikes();
   </script>
