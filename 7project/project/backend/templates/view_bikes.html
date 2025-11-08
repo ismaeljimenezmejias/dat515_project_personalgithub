@@ -152,6 +152,8 @@
     let currentFilter = 'all';
     let lastQueryUrl = '';
     let myLat = null, myLon = null;
+    // Cache of loaded thumbnail URLs to avoid column-only flicker on re-render
+    const loadedThumbs = new Set();
 
     async function loadBikes() {
   const params = new URLSearchParams();
@@ -215,10 +217,14 @@
         }
 
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
+        const cached = loadedThumbs.has(imgSrc);
+        const thumbCell = cached
+          ? `<div class="thumb-slot loaded"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" src="${imgSrc}" /></div>`
+          : `<div class="thumb-slot" data-src="${imgSrc}"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" /></div>`;
         return `
           <tr onclick="window.location.href='/bike/${bike.id}'">
             <td>
-              <div class="thumb-slot" data-src="${imgSrc}"><img alt="${bike.title}" width="80" height="60" decoding="async" loading="lazy" /></div>
+              ${thumbCell}
             </td>
             <td>${bike.id}</td>
             <td><strong>${bike.title}</strong></td>
@@ -277,9 +283,13 @@
             const img = slot.querySelector('img');
             const src = slot.getAttribute('data-src');
             if (img && src){
-              img.onload = ()=> slot.classList.add('loaded');
+              img.onload = ()=> { slot.classList.add('loaded'); loadedThumbs.add(src); };
               img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
               img.src = src;
+              if (img.complete) { // cached
+                slot.classList.add('loaded');
+                loadedThumbs.add(src);
+              }
               slot.removeAttribute('data-src');
             }
             thumbObserver.unobserve(slot);
@@ -297,9 +307,13 @@
           const img = slot.querySelector('img');
           const src = slot.getAttribute('data-src');
           if (img && src){
-            img.onload = ()=> slot.classList.add('loaded');
+            img.onload = ()=> { slot.classList.add('loaded'); loadedThumbs.add(src); };
             img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
             img.src = src;
+            if (img.complete) { // cached
+              slot.classList.add('loaded');
+              loadedThumbs.add(src);
+            }
             slot.removeAttribute('data-src');
           }
         });

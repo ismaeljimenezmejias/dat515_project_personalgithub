@@ -180,6 +180,8 @@
     let currentFilter = 'all';
     let currentUser = null; // fetched from /api/me
     let lastQueryUrl = '';
+    // Cache of already-loaded thumbnail URLs to avoid re-fades on re-render
+    const loadedThumbs = new Set();
   const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
   const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
   // Removed advanced render signature logic (keeping only image removal placeholder change)
@@ -267,7 +269,7 @@
         return;
       }
 
-      tbody.innerHTML = bikes.map(bike => {
+  tbody.innerHTML = bikes.map(bike => {
         // Determinar qué precio mostrar
         let priceDisplay = '';
         if (bike.sale_type === 'venta' && bike.sale_price) {
@@ -281,12 +283,14 @@
         }
 
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
+        const cached = loadedThumbs.has(imgSrc);
+        const thumbCell = cached
+          ? `<div class="thumb-slot loaded"><img alt="${bike.title}" width="80" height="60" loading="lazy" decoding="async" src="${imgSrc}" /></div>`
+          : `<div class="thumb-slot" data-src="${imgSrc}"><img alt="${bike.title}" width="80" height="60" loading="lazy" decoding="async" /></div>`;
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
             <td>
-              <div class="thumb-slot" data-src="${imgSrc}">
-                <img alt="${bike.title}" width="80" height="60" loading="lazy" decoding="async" />
-              </div>
+              ${thumbCell}
             </td>
             <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
             <td>${bike.model || '—'}</td>
@@ -392,9 +396,13 @@
             const img = slot.querySelector('img');
             const src = slot.getAttribute('data-src');
             if (img && src){
-              img.onload = ()=> slot.classList.add('loaded');
+              img.onload = ()=> { slot.classList.add('loaded'); loadedThumbs.add(src); };
               img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
               img.src = src;
+              if (img.complete) { // cached case
+                slot.classList.add('loaded');
+                loadedThumbs.add(src);
+              }
               slot.removeAttribute('data-src');
             }
             thumbObserver.unobserve(slot);
@@ -414,9 +422,13 @@
           const img = slot.querySelector('img');
           const src = slot.getAttribute('data-src');
           if (img && src){
-            img.onload = ()=> slot.classList.add('loaded');
+            img.onload = ()=> { slot.classList.add('loaded'); loadedThumbs.add(src); };
             img.onerror = ()=> { img.src = 'https://via.placeholder.com/80x60?text=Bike'; slot.classList.add('loaded'); };
             img.src = src;
+            if (img.complete) { // cached
+              slot.classList.add('loaded');
+              loadedThumbs.add(src);
+            }
             slot.removeAttribute('data-src');
           }
         });
