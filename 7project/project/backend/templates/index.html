@@ -169,12 +169,14 @@
     <thead>
       <tr>
     <th>Photo</th>
-    <th>Title</th>
-        <th>Model</th>
-  <th>Price (NOK)</th>
-  <th>Owner</th>
-  <th>Condition</th>
-        <th>Actions</th>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Model</th>
+      <th>Price (NOK)</th>
+      <th>Owner</th>
+      <th>Location</th>
+      <th>Condition</th>
+      <th>Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -272,6 +274,8 @@
       const data = await res.json();
       const tbody = document.querySelector('#bikeTable tbody');
       let bikes = data.bikes || [];
+    // Sort by id ascending for consistent ordering
+    bikes.sort((a,b)=> (a.id||0) - (b.id||0));
 
       // Optional near-me filter (client-side)
       const radiusInput = document.getElementById('radiusKm');
@@ -288,12 +292,11 @@
       }
       
       if (bikes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
         return;
       }
-
-  tbody.innerHTML = bikes.map(bike => {
-        // Determinar qué precio mostrar
+      tbody.innerHTML = bikes.map(bike => {
+        // Determine price display (sale/rent/both)
         let priceDisplay = '';
         if (bike.sale_type === 'venta' && bike.sale_price) {
           priceDisplay = `<strong>${bike.sale_price.toFixed(2)}</strong>`;
@@ -304,27 +307,25 @@
         } else {
           priceDisplay = '—';
         }
-
-  const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
-  // Start with placeholder; swap after real image loaded to avoid white flash or broken icon
-  const thumbCell = `<img class=\"thumb\" src=\"${THUMB_PLACEHOLDER}\" data-src=\"${imgSrc}\" alt=\"${bike.title}\" width=\"80\" height=\"60\" loading=\"lazy\" decoding=\"async\" />`;
+        const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
+        const thumbCell = `<img class=\"thumb\" src=\"${THUMB_PLACEHOLDER}\" data-src=\"${imgSrc}\" alt=\"${bike.title}\" width=\"80\" height=\"60\" loading=\"lazy\" decoding=\"async\" />`;
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
-            <td>
-              ${thumbCell}
-            </td>
-            <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
+            <td>${thumbCell}</td>
+            <td>${bike.id}</td>
+            <td><strong>${bike.title}</strong>${bike.description ? '<br><small style=\"color:#666\">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
             <td>${bike.model || '—'}</td>
             <td>${priceDisplay}</td>
             <td>${bike.owner_id ? `<a href='/user/${bike.owner_id}' onclick=\"event.stopPropagation()\">${bike.owner_name || ('User #' + bike.owner_id)}</a>` : '—'}</td>
+            <td>${bike.location_name || (bike.latitude && bike.longitude ? (bike.latitude.toFixed(3)+', '+bike.longitude.toFixed(3)) : '—')}</td>
             <td>${bike.condition || '—'}</td>
             <td>
-              ${bike.sale_type !== 'alquiler' ? `<button class="btn btn-success" onclick="event.stopPropagation(); buy(${bike.id}, '${bike.title}')">Buy</button>` : ''}
-              ${bike.sale_type !== 'venta' ? `<button class="btn btn-info" onclick="event.stopPropagation(); rent(${bike.id}, '${bike.title}')">Rent</button>` : ''}
+              ${bike.sale_type !== 'alquiler' ? `<button class=\"btn btn-success\" onclick=\"event.stopPropagation(); buy(${bike.id}, '${bike.title}')\">Buy</button>` : ''}
+              ${bike.sale_type !== 'venta' ? `<button class=\"btn btn-info\" onclick=\"event.stopPropagation(); rent(${bike.id}, '${bike.title}')\">Rent</button>` : ''}
             </td>
           </tr>
         `;
-      }).join('');
+  }).join('');
       // After rows injected, load thumbnails progressively (no layout changes)
       loadThumbs();
     }
