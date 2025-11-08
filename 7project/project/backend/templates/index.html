@@ -158,6 +158,13 @@
     </div>
   </div>
 
+  <div class="filters" style="margin-top:8px">
+    <strong>Near me:</strong>
+    <input type="number" id="radiusKm" placeholder="Radius (km)" min="1" value="10" style="width:120px" />
+    <button onclick="getLocationAndFilter()">📍 Use my location</button>
+    <span id="nearStatus" style="color:#666"></span>
+  </div>
+
   <table id="bikeTable">
     <thead>
       <tr>
@@ -184,6 +191,8 @@
   const THUMB_FALLBACK = 'https://via.placeholder.com/80x60?text=Bike';
   const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
   const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
+  // Geolocation state for client-side radius filter
+  let myLat = null, myLon = null;
   // Removed advanced render signature logic (keeping only image removal placeholder change)
 
     async function ensureSession() {
@@ -262,7 +271,21 @@
       const res = await fetch(url);
       const data = await res.json();
       const tbody = document.querySelector('#bikeTable tbody');
-      const bikes = data.bikes || [];
+      let bikes = data.bikes || [];
+
+      // Optional near-me filter (client-side)
+      const radiusInput = document.getElementById('radiusKm');
+      const radius = radiusInput ? Number(radiusInput.value || '0') : 0;
+      if (myLat != null && myLon != null && radius > 0) {
+        const R = 6371; // km
+        const toRad = d => d * Math.PI / 180;
+        const dist = (lat1, lon1, lat2, lon2) => {
+          const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+          const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+          return 2 * R * Math.asin(Math.sqrt(a));
+        };
+        bikes = bikes.filter(b => (b.latitude != null && b.longitude != null) && dist(myLat, myLon, b.latitude, b.longitude) <= radius);
+      }
       
       if (bikes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;">No bikes found</td></tr>';
@@ -348,6 +371,21 @@
 
     async function rent(id, title) {
       alert("🚴 You rented: " + title + "!");
+    }
+
+    function getLocationAndFilter(){
+      const status = document.getElementById('nearStatus');
+      if (status) status.textContent = 'Requesting location…';
+      if (!navigator.geolocation){ if (status) status.textContent = 'Geolocation not supported'; return; }
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          myLat = pos.coords.latitude; myLon = pos.coords.longitude;
+          if (status) status.textContent = `Using ${myLat.toFixed(3)}, ${myLon.toFixed(3)}`;
+          loadBikes();
+        },
+        ()=>{ if (status) status.textContent = 'Unable to get location'; },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
     }
 
     // Initialize on page load

@@ -91,8 +91,15 @@
     .btn-refresh:hover {
       background: #0056b3;
     }
-      /* Simplified thumbnail to avoid flicker: direct img fixed size */
+    /* Simplified thumbnail to avoid flicker: direct img fixed size */
       .thumb { width:80px;height:60px;object-fit:cover;border:1px solid #ddd;border-radius:6px;display:block; }
+    /* Price filter styles (match index) */
+    .price-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; }
+    .range-row { background: #f8f9fa; padding: 0.75rem; border-radius: 6px; }
+    .range-row label { font-weight: 600; color: #555; display: block; margin-bottom: 0.5rem; }
+    .range-inputs { display: flex; align-items: center; gap: 8px; }
+    .range-inputs input[type=range] { flex: 1; }
+    .range-values { color: #333; min-width: 140px; text-align: right; font-variant-numeric: tabular-nums; }
   /* Placeholder thumbnail (no image loads to avoid flicker) */
   .thumb-slot { width:80px;height:60px;border:1px solid #ddd;border-radius:6px;background:#eaeaea;position:relative;overflow:hidden; }
   .thumb-slot img { width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease; }
@@ -122,6 +129,25 @@
       <button onclick="filterBikes('venta')" id="filter-venta">For Sale</button>
       <button onclick="filterBikes('alquiler')" id="filter-alquiler">For Rent</button>
       <button onclick="loadBikes()" class="btn-refresh">🔄 Refresh</button>
+    </div>
+
+    <div class="price-filters">
+      <div class="range-row" id="sale-range-row">
+        <label>Sale price (NOK)</label>
+        <div class="range-inputs">
+          <input type="range" id="saleMin" min="0" max="10000" step="10" value="0">
+          <input type="range" id="saleMax" min="0" max="10000" step="10" value="10000">
+          <div class="range-values"><span id="saleMinVal">0</span> - <span id="saleMaxVal">10000</span></div>
+        </div>
+      </div>
+      <div class="range-row" id="rent-range-row">
+        <label>Rental price (NOK/year)</label>
+        <div class="range-inputs">
+          <input type="range" id="rentMin" min="0" max="1000" step="5" value="0">
+          <input type="range" id="rentMax" min="0" max="1000" step="5" value="1000">
+          <div class="range-values"><span id="rentMinVal">0</span> - <span id="rentMaxVal">1000</span></div>
+        </div>
+      </div>
     </div>
 
     <div class="filters" style="margin-top:8px">
@@ -156,6 +182,8 @@
   // Inline SVG placeholder & fallback to eliminate blank/broken icon flicker
   const THUMB_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60'><rect width='100%' height='100%' fill='%23eaeaea'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999' font-family='Arial'>IMG</text></svg>";
   const THUMB_FALLBACK = 'https://via.placeholder.com/80x60?text=Bike';
+    const SALE_MIN_DEFAULT = 0, SALE_MAX_DEFAULT = 10000;
+    const RENT_MIN_DEFAULT = 0, RENT_MAX_DEFAULT = 1000;
 
     async function loadBikes() {
   const params = new URLSearchParams();
@@ -166,6 +194,36 @@
     params.set('search', searchText);
   }
   
+  // Price filters
+  const saleMin = Number(document.getElementById('saleMin').value);
+  const saleMax = Number(document.getElementById('saleMax').value);
+  const rentMin = Number(document.getElementById('rentMin').value);
+  const rentMax = Number(document.getElementById('rentMax').value);
+
+  const saleActive = (saleMin > SALE_MIN_DEFAULT) || (saleMax < SALE_MAX_DEFAULT);
+  const rentActive = (rentMin > RENT_MIN_DEFAULT) || (rentMax < RENT_MAX_DEFAULT);
+
+  if (currentFilter === 'venta') {
+    if (saleActive) {
+      params.set('minSalePrice', String(saleMin));
+      params.set('maxSalePrice', String(saleMax));
+    }
+  } else if (currentFilter === 'alquiler') {
+    if (rentActive) {
+      params.set('minRentalPrice', String(rentMin));
+      params.set('maxRentalPrice', String(rentMax));
+    }
+  } else {
+    if (saleActive) {
+      params.set('minSalePrice', String(saleMin));
+      params.set('maxSalePrice', String(saleMax));
+    }
+    if (rentActive) {
+      params.set('minRentalPrice', String(rentMin));
+      params.set('maxRentalPrice', String(rentMax));
+    }
+  }
+
   const url = params.toString() ? `/api/bikes?${params.toString()}` : '/api/bikes';
   if (url === lastQueryUrl) return;
   lastQueryUrl = url;
@@ -245,7 +303,36 @@
         btn.classList.remove('active');
       });
       document.getElementById('filter-' + type).classList.add('active');
+      updatePriceVisibility();
       loadBikes();
+    }
+
+    function syncRanges(minInput, maxInput, minValEl, maxValEl) {
+      let minVal = Number(minInput.value);
+      let maxVal = Number(maxInput.value);
+      if (minVal > maxVal) {
+        [minVal, maxVal] = [maxVal, minVal];
+        minInput.value = String(minVal);
+        maxInput.value = String(maxVal);
+      }
+      minValEl.textContent = minVal.toFixed(0);
+      maxValEl.textContent = maxVal.toFixed(0);
+    }
+
+    function updatePriceVisibility() {
+      const saleRow = document.getElementById('sale-range-row');
+      const rentRow = document.getElementById('rent-range-row');
+      if (!saleRow || !rentRow) return;
+      if (currentFilter === 'venta') {
+        saleRow.style.display = 'block';
+        rentRow.style.display = 'none';
+      } else if (currentFilter === 'alquiler') {
+        saleRow.style.display = 'none';
+        rentRow.style.display = 'block';
+      } else {
+        saleRow.style.display = 'block';
+        rentRow.style.display = 'block';
+      }
     }
 
     function getLocationAndFilter(){
@@ -269,6 +356,30 @@
     const searchBox = document.getElementById('searchBox');
     searchBox.addEventListener('keyup', (e)=>{ if (e.key === 'Enter') loadBikes(); });
     searchBox.addEventListener('change', ()=> loadBikes());
+
+    // Wire up price range handlers
+    const saleMinInput = document.getElementById('saleMin');
+    const saleMaxInput = document.getElementById('saleMax');
+    const rentMinInput = document.getElementById('rentMin');
+    const rentMaxInput = document.getElementById('rentMax');
+    const saleMinVal = document.getElementById('saleMinVal');
+    const saleMaxVal = document.getElementById('saleMaxVal');
+    const rentMinVal = document.getElementById('rentMinVal');
+    const rentMaxVal = document.getElementById('rentMaxVal');
+
+    const saleSync = ()=> syncRanges(saleMinInput, saleMaxInput, saleMinVal, saleMaxVal);
+    const rentSync = ()=> syncRanges(rentMinInput, rentMaxInput, rentMinVal, rentMaxVal);
+    if (saleMinInput && saleMaxInput) {
+      saleMinInput.addEventListener('change', ()=>{ saleSync(); loadBikes(); });
+      saleMaxInput.addEventListener('change', ()=>{ saleSync(); loadBikes(); });
+    }
+    if (rentMinInput && rentMaxInput) {
+      rentMinInput.addEventListener('change', ()=>{ rentSync(); loadBikes(); });
+      rentMaxInput.addEventListener('change', ()=>{ rentSync(); loadBikes(); });
+    }
+    saleSync();
+    rentSync();
+    updatePriceVisibility();
 
     // Minimal image loader identical to index page
     function loadThumbs(){
