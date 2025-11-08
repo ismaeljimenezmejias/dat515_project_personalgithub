@@ -294,7 +294,7 @@
         const imgSrc = bike.image_url || 'https://images.unsplash.com/photo-1518650820938-039f23f89c79?w=400&q=60';
         return `
           <tr onclick=\"window.location.href='/bike/${bike.id}'\">
-            <td><img class="thumb" width="80" height="60" loading="lazy" src="${imgSrc}" alt="${bike.title}" onerror="this.src='https://via.placeholder.com/80x60?text=Bike'" /></td>
+            <td><div class="thumb" aria-hidden="true" style="background:#eaeaea;border:1px solid #ddd;border-radius:6px;"></div></td>
             <td><strong>${bike.title}</strong>${bike.description ? '<br><small style="color:#666">' + bike.description.substring(0, 60) + (bike.description.length > 60 ? '...' : '') + '</small>' : ''}</td>
             <td>${bike.model || '—'}</td>
             <td>${priceDisplay}</td>
