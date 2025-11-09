@@ -177,6 +177,9 @@ docker compose logs -f app
 
 
 > **Prerequisite**: install and start a Kubernetes cluster that exposes a local `kubectl` context (Docker Desktop with Kubernetes enabled, minikube, kind, k3d, or a remote managed cluster).
+> 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.1/deploy/static/provider/cloud/deploy.yaml 
+# to be able to use https
 
 ```bash
 # Ensure kubectl points to the cluster you initialized
