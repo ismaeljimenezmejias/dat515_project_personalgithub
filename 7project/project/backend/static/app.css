@@ -1,0 +1,6 @@
+/* Static stylesheet served directly by Nginx */
+:root {
+  --brand-blue: #007bff;
+}
+body { background:#f7f7f7; }
+a.about-link { text-decoration: none; }

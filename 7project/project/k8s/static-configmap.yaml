@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: static-assets
+data:
+  app.css: |
+    /* Static CSS served by nginx in K8s */
+    :root { --brand-blue: #007bff; }
+    body { background:#f7f7f7; }
+    a.about-link { text-decoration: none; }

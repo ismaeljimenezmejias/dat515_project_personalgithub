@@ -64,6 +64,7 @@
       volumes:
         - ./nginx.conf:/etc/nginx/conf.d/app.conf:ro  # lo montamos con otro nombre
         - ./certs:/etc/nginx/certs:ro
+        - ./backend/static:/var/www/static:ro  # servir estáticos directamente
       depends_on:
         app:
           condition: service_started
