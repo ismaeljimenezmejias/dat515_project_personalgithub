@@ -29,7 +29,7 @@
         MYSQL_PASSWORD: webpass
       volumes:
         - db_data:/var/lib/mysql
-        - ./database/init.sql:/docker-entrypoint-initdb.d/dockinit.sql
+        - ./backend/database:/docker-entrypoint-initdb.d:ro
       healthcheck:
         test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
         timeout: 10s

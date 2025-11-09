@@ -175,9 +175,18 @@ docker compose logs -f app
 
 ### Local Deployment (kubernetes)
 
+
+> **Prerequisite**: install and start a Kubernetes cluster that exposes a local `kubectl` context (Docker Desktop with Kubernetes enabled, minikube, kind, k3d, or a remote managed cluster).
+
 ```bash
+# Ensure kubectl points to the cluster you initialized
+
 # Make sure the backend image exists locally
 docker build -t bike-market-backend -f backend/Dockerfile .
+
+# If the cluster uses its own image store, load or push the image before applying manifests
+# Example: minikube image load bike-market-backend
+# Example: kind load docker-image bike-market-backend
 
 # Apply every manifest in k8s/ (Deployments, Services, Job, ConfigMap, PVC)
 kubectl apply -f k8s/
@@ -185,7 +194,7 @@ kubectl apply -f k8s/
 # Confirm the cluster is reachable and pods are up
 kubectl get nodes
 
-#Check every pod runs correctly
+# Check every pod runs correctly
 kubectl get pods
 ```
 
