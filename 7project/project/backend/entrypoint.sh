@@ -3,8 +3,8 @@ set -e
 
 # Only run destructive DB init when explicitly enabled
 if [ "${INIT_DB_ON_START}" = "true" ]; then
-  echo "INIT_DB_ON_START=true -> Running destructive DB init..."
-  if python init_db_pg.py; then
+  echo "INIT_DB_ON_START=true -> Running destructive DB init (database.init_db_pg)..."
+  if python -m database.init_db_pg; then
     echo "DB init completed."
   else
     echo "DB init failed or DB not reachable; continuing to start the app."

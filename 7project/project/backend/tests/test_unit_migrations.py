@@ -27,7 +27,7 @@ def _fake_psycopg2_connect(*args, **kwargs):
 psycopg2_mod.connect = _fake_psycopg2_connect
 sys.modules['psycopg2'] = psycopg2_mod
 
-from migrations import _is_postgres_connection
+from database.migrations import _is_postgres_connection
 
 
 class DummyPG:

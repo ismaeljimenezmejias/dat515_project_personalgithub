@@ -8,7 +8,7 @@ from routes.health import health_bp
 from routes.data import data_bp
 from routes.main import main_bp
 from db import get_connection
-from migrations import ensure_schema
+from database.migrations import ensure_schema
 import time
 import logging
 from redis_client import get_redis
