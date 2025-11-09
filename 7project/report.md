@@ -28,42 +28,29 @@ The app is a classic server‑rendered web app with a JSON API. Locally (Docker 
 ```mermaid
 flowchart LR
 
-    subgraph DC[Local: Docker Compose]
-        direction TB
-        A1[User Browser] --> N1[Nginx Reverse Proxy - TLS and HSTS]
-        N1 --> F1[Flask App - Gunicorn]
-        F1 --> M1[MySQL]
-        F1 --> R1[Redis]
-        C1[Env vars (.env / compose)] -.-> F1
-    end
+subgraph Railway
+direction LR
+BrowserRailway --> Edge --> FlaskRailway --> PostgresManaged
+FlaskRailway --> RedisManaged
+end
 
-    subgraph K8s[Production: Kubernetes]
-        direction TB
-        A2[User Browser] --> I2[Ingress Controller - TLS]
-        I2 --> S2[Service - ClusterIP]
-        S2 --> P2a[Backend Pod Replica 1 - Flask]
-        S2 --> P2b[Backend Pod Replica 2 - Flask]
-        P2a --> PG2[PostgreSQL with persistent volume]
-        P2b --> PG2
-        P2a --> R2[Redis]
-        P2b --> R2
-        C2[ConfigMap and env vars] -.-> P2a
-        C2 -.-> P2b
-    end
 
-    subgraph RW[Cloud PaaS: Railway]
-        direction TB
-        A3[User Browser] --> E3[Railway Edge - Managed HTTPS]
-        E3 --> F3[Flask App - Container]
-        F3 --> PG3[Managed Postgres]
-        F3 --> R3[Managed Redis]
-        C3[Railway variables] -.-> F3
-    end
+subgraph Kubernetes
+direction LR
+BrowserK8s --> Ingress --> Service --> PodA
+Service --> PodB
+PodA --> Postgres
+PodB --> Postgres
+PodA --> RedisK8s
+PodB --> RedisK8s
+end
 
-    NoteShared[Same codebase; Redis optional; fallback to signed cookies]
-    F1 -.-> NoteShared
-    P2a -.-> NoteShared
-    F3 -.-> NoteShared
+
+subgraph Docker Compose
+direction LR
+BrowserLocal --> Nginx --> FlaskLocal --> MySQL
+FlaskLocal --> RedisLocal
+end
 ```
 
 
@@ -169,9 +156,9 @@ All of the following scripts are invoked automatically by Docker or the app entr
 
 - `backend/db.py`: central database connector; it detects whether `DB_URL` is present. Without it the app connects to the MySQL container using the vars above, otherwise it opens the Railway PostgreSQL URL.
 - `backend/redis_client.py`: wraps the Redis client. Locally it points to the `cache` service; in production it reads `REDIS_URL` if you provision Redis on Railway. The module returns `None` when Redis is unavailable so the app still runs.
-- `backend/migrations.py`: executes lightweight, idempotent schema adjustments (adds `password_hash`, optional bike location columns). It runs on startup and safely no-ops if the changes already exist.
-- `database/init.sql`: bootstrap script mounted into the MySQL container. It creates the tables, seeds three demo users (Alice, Bob, Charlie), sample bikes, and a messages table.
-- `backend/init_db_pg.py`: helper used only when deploying to Railway. When `INIT_DB_ON_START=true` it runs the equivalent schema creation against PostgreSQL to ensure prod has the same tables.
+- `backend/database/migrations.py`: idempotent schema adjustments (adds `password_hash`, location columns). Runs on startup; safe if already applied.
+- `backend/database/init_db_pg.py`: destructive PostgreSQL bootstrap (dev / one-off) triggered when `INIT_DB_ON_START=true` (Railway / K8s Job). Recreates and seeds sample data.
+- `backend/database/init.sql`: legacy MySQL first-run script (docker compose) to create and seed tables on an empty volume.
 
 
 ## Deployment Instructions
@@ -323,6 +310,7 @@ Below are the main troubleshooting patterns we hit and the concise mitigations w
 - DB incompatibilities (MySQL ↔ PostgreSQL) — mitigation: add small, idempotent migration checks and test the schema with the PostgreSQL driver used in production.
 - Redis/session differences across environments — mitigation: make Redis optional, add health checks and validate session behaviour end‑to‑end in prod.
 - Messaging persistence (brief) — during manual testing some messages were not saved and later triggered errors; we corrected the database implementation and validated the message flow.
+- Flickering problem: each table refresh rebuilt the <img> with the remote URL, so the browser briefly showed a blank box or broken icon while starting the network request. Solution: render a fixed-size gray SVG placeholder first and only swap to the real image once it has fully loaded (fallback if it errors). Result: thumbnails appear immediately and no flicker.
 
 ### Quick debug commands
 
